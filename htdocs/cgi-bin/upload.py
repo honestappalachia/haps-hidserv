@@ -39,6 +39,23 @@ def allowed_ft(f):
 	return True
     else:
 	return False
+
+def allowed_size(f):
+    '''
+    Returns true if the size of f is less than MAX_FILESIZE
+    '''
+    # Thanks to Trac developers, responding to the replacement of StringIO
+    # (which supports len) with cStringIO (no len) in the cgi module in Python >= 2.5
+    # for tip on getting filesize from cStringIO
+    # http://trac.edgewall.org/ticket/4311
+    f.seek(0, os.SEEK_END) # http://docs.python.org/library/stdtypes.html#file.seek
+    fsize = f.tell()
+    f.seek(0)
+
+    if fsize <= MAX_FILESIZE:
+	return True
+    else:
+	return False
     
 def span(text, c):
     ''' Wrap text in a span with class=c '''
