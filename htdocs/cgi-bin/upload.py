@@ -15,6 +15,7 @@ import magic
 UPLOAD_DIR = "../uploads/"
 
 # Whitelist of allowed filetypes
+# TODO: Complete list of useful filetypes to upload
 ALLOWED_FILETYPES = set([
     # format: (extension, MIME type),
     ('.txt', 'text/plain'),
