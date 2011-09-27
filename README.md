@@ -1,16 +1,25 @@
 haps-hidserv
-------------
+============
 
 A Tor hidden service for anonymous file upload, using thttpd and Python.
 Developed on Ubuntu 10.04, but is expected to work on any *nix.
 
 Setup
------
+=====
 
 1.  [Install Tor]
 2.  [Install thttpd]
 3.  [Set Up a Hidden Service]
 4.  Clone this repo
+5.  Install Python dependencies. We recommend using pip. To install pip
+    1.	`sudo apt-get install python-setuptools`
+    2.	`sudo easy_install pip`
+    3.	Now, to install *packagename*: `sudo pip install *packagename*`
+
+Python dependencies
+-------------------
+
+1.  [python-magic]
 
 The directory structure of this repo is set up so everything should work "out of the box." All you will have to do is edit the following settings in thttpd.conf to match your local environment and installation directory: dir, user, data-dir, logfile, pidfile
 
@@ -23,7 +32,7 @@ If you're having trouble, try running with the debug flag: `thttpd -C thttpd.con
 The site will be running at localhost:5222 (or whatever options you set for host and port in thttpd.conf). 
 
 Notes
------
+=====
 
 The thttpd setup here is bare-bones and designed for development.
 
@@ -36,3 +45,4 @@ For these reasons among others, we do not recommend deploying this site as-is. D
 [install tor]: https://www.torproject.org/docs/tor-doc-unix.html.en
 [install thttpd]: http://acme.com/software/thttpd/
 [set up a hidden service]: https://www.torproject.org/docs/tor-hidden-service.html.en
+[python-magic]: https://github.com/ahupp/python-magic
