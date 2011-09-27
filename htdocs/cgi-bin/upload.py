@@ -91,6 +91,7 @@ if field in form and form[field].filename:
 	finally:
 	    f.close()
     else:
+	# TODO: make MESSAGE to user more useful
 	MESSAGE = span("We do not allow users to upload files of this type and/or size", "error")
 else:
     MESSAGE = span("You didn't specify a file.", "error")
