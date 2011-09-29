@@ -15,6 +15,7 @@ If it finds one, it
 
 import sys, os
 import subprocess
+import time
 import beanstalkc
 import gnupg
 from mylogging import debug, info, warning, error, critical
@@ -24,7 +25,7 @@ from boto.s3.key import Key
 
 ### SETTINGS ###
 PUBLIC_KEY_ID = ''  # public key to use to encrypt files
-		    # stored in gpg keyring
+            # stored in gpg keyring
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
 BUCKET_NAME = 'haps-dev'
@@ -51,9 +52,9 @@ def encrypt_file(source_file, destination_dir, key):
     '''
     GPG-encrypts source_file with key, saving encrypted file to destination_dir
 
-    f	--  absolute path to the file to encrypt
-    destination_dir --	absolute path to directory to save encrypted file in
-    key	--  keyid of public key to use; must be saved in gpg keyring
+    f   --  absolute path to the file to encrypt
+    destination_dir --  absolute path to directory to save encrypted file in
+    key --  keyid of public key to use; must be saved in gpg keyring
 
     Returns path to the encrypted file
     '''
@@ -61,21 +62,23 @@ def encrypt_file(source_file, destination_dir, key):
     gpg = gnupg.GPG() # use default - current user's home
     public_keys = gpg.list_keys()
     assert PUBLIC_KEY_ID in [key['keyid'] for key in public_keys], \
-	"Could not find the specified PUBLIC_KEY_ID in keyring"
+    "Could not find the specified PUBLIC_KEY_ID in keyring"
 
     # build encrypted filename and path
     e_filename = source_file.split("/")[-1] + ".gpg"
     ef_path = os.path.join(destination_dir, e_filename)
 
     try:
-	fp = open(source_file, 'rb')
-	encrypted_data = gpg.encrypt_file(
-	    fp,			# file object to encrypt
-	    key,		# public key of recipient
-	    output = ef_path,	# path to encrypted file
-	)
+        fp = open(source_file, 'rb')
+        encrypted_data = gpg.encrypt_file(
+            fp,         # file object to encrypt
+            key,        # public key of recipient
+            output = ef_path,   # path to encrypted file
+        )
     except IOError as e:
-	error(e)
+        error(e)
+
+    deubg("Encrypted %s -> %s" % (source_file, ef_path))
     
     return ef_path
 
@@ -92,12 +95,14 @@ def upload_to_s3(local_file, bucket_name, key_name=None, acl='private'):
     k = Key(bucket)
     
     if key_name:
-	k.key = key_name
+        k.key = key_name
     else:
-	k.key = local_file.split("/")[-1]
+        k.key = local_file.split("/")[-1]
 
     k.set_contents_from_filename(local_file)
     k.set_acl(acl)
+
+    debug("Upload %s to S3" % local_file)
 
 def shred_file(f):
     '''
@@ -108,9 +113,9 @@ def shred_file(f):
     assert whereis("shred") is not None, "Please install shred."
     process = subprocess.Popen(['shred', '-fuz', source_file], shell=False)
     if process.wait() == 0: # wait for shred to complete, check return code
-	pass
+        debug("Shredded %s" % f)
     else: # some kind of error occurred; handle
-	error("shredding the file failed: shred returned %s" % (process.returncode))
+        error("shredding the file failed: shred returned %s" % (process.returncode))
 
 def main():
 
@@ -120,25 +125,27 @@ def main():
     # infinite loop, handle jobs as they come
     while(True):
 
-	if beanstalk.peek_ready():  # is there something in the queue?
-	    job = beanstalk.reserve(timeout=0)
-	    # job.body should be an absolute path to a file
-	    assert os.path.isfile(job.body), \
-		"job.body does not reference a file: %s" % job.body
+        if beanstalk.peek_ready():  # is there something in the queue?
+            job = beanstalk.reserve(timeout=0)
+            # job.body should be an absolute path to a file
+            assert os.path.isfile(job.body), \
+            "job.body does not reference a file: %s" % job.body
 
-	    info("Processing %s" % job.body)
+            info("Processing %s" % job.body)
 
-	    # encrypt file
-	    ef_path = encrypt_file(job.body, TEMP_DIR, PUBLIC_KEY_ID)
-	    # upload to s3
-	    upload_to_s3(ef_path, BUCKET_NAME)
-	    # shred encrypted and original file
-	    shred(job.body)
-	    shred(ef_path)
+            # encrypt file
+            ef_path = encrypt_file(job.body, TEMP_DIR, PUBLIC_KEY_ID)
+            # upload to s3
+            upload_to_s3(ef_path, BUCKET_NAME)
+            # shred encrypted and original file
+            # shred(job.body)
+            # shred(ef_path)
 
-	    # we handled that job; remove it from the queue
-	    job.delete()
+            # we handled that job; remove it from the queue
+            job.delete()
+        else:
+            debug("No job found")
 
-	time.sleep(10)  # how often to check and handle a job
+        time.sleep(10)  # how often to check and handle a job
 
 if __name__ == "__main__": main()

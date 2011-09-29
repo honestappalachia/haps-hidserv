@@ -48,9 +48,9 @@ def allowed_ft(f):
     mtype = m.from_buffer(f.read(1024))
     INFO['mime_type'] = mtype
     if mtype in [x[1] for x in ALLOWED_FILETYPES]:
-	return True
+        return True
     else:
-	return False
+        return False
 
 def allowed_size(f):
     '''
@@ -66,9 +66,9 @@ def allowed_size(f):
 
     INFO['size'] = fsize
     if fsize <= MAX_FILESIZE:
-	return True
+        return True
     else:
-	return False
+        return False
     
 def span(text, c):
     ''' Wrap text in a span with class=c '''
@@ -77,9 +77,9 @@ def span(text, c):
 def fbuffer(f, chunk_size=10000):
     ''' Simple generator to read/write large files '''
     while True:
-	chunk = f.read(chunk_size)
-	if not chunk: break
-	yield chunk
+        chunk = f.read(chunk_size)
+        if not chunk: break
+            yield chunk
 
 form = cgi.FieldStorage() # this should only be instantiated once
 field = "file"
