@@ -79,7 +79,7 @@ def fbuffer(f, chunk_size=10000):
     while True:
         chunk = f.read(chunk_size)
         if not chunk: break
-            yield chunk
+        yield chunk
 
 form = cgi.FieldStorage() # this should only be instantiated once
 field = "file"
@@ -93,7 +93,7 @@ if field in form and form[field].filename:
         try:
             f = open(os.path.join(UPLOAD_DIR, clean_fn), 'wb')
             for chunk in fbuffer(filefield.file):
-            f.write(chunk)
+                f.write(chunk)
             MESSAGE = span("%s was successfully uploaded." % (clean_fn), "ok")
         except IOError:
             MESSAGE = span("An error occurred writing the file.", "error")
