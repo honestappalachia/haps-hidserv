@@ -1,17 +1,25 @@
 #!/usr/bin/env python
+"""
+This is the CGI script called by the upload form.
+
+It receives the form contents as cgi.FieldStorage. Then it
+
+    1. Gets the "file" field
+    2. Checks that the filetype and filesize are allowed
+    3. If so, uploads file and returns success page.
+       Otherwise, returns error page.
+"""
+
+# TODO: check for exisiting file with the same name; use renaming scheme
+
 import cgi
 import cgitb; cgitb.enable()
 import os, sys
 import magic
+from mylogging import debug, info, warning, error, critical
 
-# implement:
-# check filesize, disallow too-large filesizes
-# check for existing file with same name; if exists, add _1...
-# check filetype - whitelist?
-# any kind of DoS mitigation? use URL throttling?
-
-# thttpd(8) CGI : CGI programs run with the directory they live in as
-# their current working directory
+# thttpd(8) CGI :
+# CGI scripts run with the directory they live in as their current working directory
 UPLOAD_DIR = "../uploads/"
 
 # Whitelist of allowed filetypes

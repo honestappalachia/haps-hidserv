@@ -110,7 +110,7 @@ def shred_file(f):
     if process.wait() == 0: # wait for shred to complete, check return code
 	pass
     else: # some kind of error occurred; handle
-	error("An error occurred in shredding the file: shred returned %s" % (process.returncode))
+	error("shredding the file failed: shred returned %s" % (process.returncode))
 
 def main():
 
@@ -125,6 +125,8 @@ def main():
 	    # job.body should be an absolute path to a file
 	    assert os.path.isfile(job.body), \
 		"job.body does not reference a file: %s" % job.body
+
+	    info("Processing %s" % job.body)
 
 	    # encrypt file
 	    ef_path = encrypt_file(job.body, TEMP_DIR, PUBLIC_KEY_ID)

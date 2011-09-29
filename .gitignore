@@ -1,3 +1,4 @@
 *.swp
 htdocs/uploads/*
 *.pyc
+settings.py
