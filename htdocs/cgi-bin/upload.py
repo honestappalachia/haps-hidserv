@@ -90,15 +90,15 @@ if field in form and form[field].filename:
     clean_fn = os.path.basename(filefield.filename)
     # check filetype
     if allowed_ft(filefield.file) and allowed_size(filefield.file):
-	try:
-	    f = open(os.path.join(UPLOAD_DIR, clean_fn), 'wb')
-	    for chunk in fbuffer(filefield.file):
-		f.write(chunk)
-	    MESSAGE = span("%s was successfully uploaded." % (clean_fn), "ok")
-	except IOError:
-	    MESSAGE = span("An error occurred writing the file.", "error")
-	finally:
-	    f.close()
+        try:
+            f = open(os.path.join(UPLOAD_DIR, clean_fn), 'wb')
+            for chunk in fbuffer(filefield.file):
+            f.write(chunk)
+            MESSAGE = span("%s was successfully uploaded." % (clean_fn), "ok")
+        except IOError:
+            MESSAGE = span("An error occurred writing the file.", "error")
+        finally:
+            f.close()
     else:
 	# TODO: make MESSAGE to user more useful
 	MESSAGE = span("We do not allow users to upload files of this type and/or size", "error")
