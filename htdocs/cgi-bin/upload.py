@@ -16,6 +16,7 @@ import cgi
 import cgitb; cgitb.enable()
 import os, sys
 import magic
+import beanstalkc
 from mylogging import debug, info, warning, error, critical
 
 # thttpd(8) CGI :
@@ -95,6 +96,11 @@ if field in form and form[field].filename:
             for chunk in fbuffer(filefield.file):
                 f.write(chunk)
             MESSAGE = span("%s was successfully uploaded." % (clean_fn), "ok")
+            beanstalk = beanstalkc.Connection(host='localhost', port=11300)
+            # places job - absolute path to uploaded file
+            beanstalk.put(os.path.abspath(os.path.join(UPLOAD_DIR, clean_fn)))
+            debug("Enqueued %s" % os.path.abspath(os.path.join(UPLOAD_DIR, clean_fn)))
+            beanstalk.close()
         except IOError:
             MESSAGE = span("An error occurred writing the file.", "error")
         finally:
