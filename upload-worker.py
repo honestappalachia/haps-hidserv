@@ -61,8 +61,8 @@ def encrypt_file(source_file, destination_dir, key):
     # init gpg
     gpg = gnupg.GPG() # use default - current user's home
     public_keys = gpg.list_keys()
-    assert PUBLIC_KEY_ID in [key['keyid'] for key in public_keys], \
-    "Could not find the specified PUBLIC_KEY_ID in keyring"
+    assert key in [key['keyid'] for key in public_keys], \
+        "Could not find the specified PUBLIC_KEY_ID in keyring"
 
     # build encrypted filename and path
     e_filename = source_file.split("/")[-1] + ".gpg"
@@ -73,13 +73,13 @@ def encrypt_file(source_file, destination_dir, key):
         encrypted_data = gpg.encrypt_file(
             fp,         # file object to encrypt
             key,        # public key of recipient
-            output = ef_path,   # path to encrypted file
+            output=ef_path # path to encrypted file
         )
     except IOError as e:
         error(e)
 
-    deubg("Encrypted %s -> %s" % (source_file, ef_path))
-    
+    debug("Encrypted %s -> %s" % (source_file, ef_path))
+
     return ef_path
 
 def upload_to_s3(local_file, bucket_name, key_name=None, acl='private'):
@@ -102,7 +102,7 @@ def upload_to_s3(local_file, bucket_name, key_name=None, acl='private'):
     k.set_contents_from_filename(local_file)
     k.set_acl(acl)
 
-    debug("Upload %s to S3" % local_file)
+    debug("Uploaded %s to S3" % local_file)
 
 def shred_file(f):
     '''
