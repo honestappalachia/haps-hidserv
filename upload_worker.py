@@ -25,7 +25,7 @@ from boto.s3.key import Key
 
 ### SETTINGS ###
 PUBLIC_KEY_ID = ''  # public key to use to encrypt files
-            # stored in gpg keyring
+                    # stored in gpg keyring
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
 BUCKET_NAME = 'haps-dev'
@@ -70,11 +70,13 @@ def encrypt_file(source_file, destination_dir, key):
 
     try:
         fp = open(source_file, 'rb')
-        encrypted_data = gpg.encrypt_file(
-            fp,         # file object to encrypt
-            key,        # public key of recipient
-            output=ef_path # path to encrypted file
-        )
+        #encrypted_data = gpg.encrypt_file(
+        #    fp,         # file object to encrypt
+        #    key,        # public key of recipient
+        #    output=ef_path # path to encrypted file
+        #)
+        encrypted_data = gpg.encrypt_file(fp, key, output=ef_path)
+        fp.close()
     except IOError as e:
         error(e)
 
@@ -136,7 +138,7 @@ def main():
             # encrypt file
             ef_path = encrypt_file(job.body, TEMP_DIR, PUBLIC_KEY_ID)
             # upload to s3
-            upload_to_s3(ef_path, BUCKET_NAME)
+            #upload_to_s3(ef_path, BUCKET_NAME)
             # shred encrypted and original file
             # shred(job.body)
             # shred(ef_path)
