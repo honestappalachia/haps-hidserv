@@ -4,13 +4,29 @@
 <head>
 <title>Upload a file</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<style>
+  form ul { list-style-type: none; } 
+  label { float: left; width:25%; margin-right:0.5em; padding-top:0.2em; text-align:right; }
+</style>
 </head>
 <body>
+
 <p>This site is under development.</p>
+
 <form enctype="multipart/form-data" method="post" action="/cgi-bin/upload.py">
-  <label for="file">Choose a file to upload: </label>
-  <input name="file" id="file" type="file" />
-  <input type="submit" value="Upload File" />
+  <ul>
+    <li>
+      <fieldset>
+        <legend>Upload file</legend>
+        <label for="file">Choose a file to upload: </label>
+        <input name="file" id="file" type="file" /><br />
+        <label for="comment">Comment (optional): </label>
+        <textarea id="comment" name="comment" rows="10" cols="40" ></textarea><br />
+        <input type="submit" value="Upload File" />
+    </fieldset>
+    </li>
+  </ul>
 </form>
+
 </body>
 </html>
