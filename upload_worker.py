@@ -28,8 +28,8 @@ PUBLIC_KEY_ID = ''  # public key to use to encrypt files
                     # stored in gpg keyring
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
-BUCKET_NAME = 'haps-dev'
 
+BUCKET_NAME = 'haps-dev'
 TEMP_DIR = "/tmp"
 
 try:
@@ -48,6 +48,20 @@ def whereis(program):
             return os.path.join(path, program)
     return None
 
+def run(program):
+    '''
+    Run program
+
+    program --  string of shell command, including options
+    returns the processes' return code
+    '''
+    process = subprocess.Popen(
+        '%s' % program,
+        shell=True
+    )
+    rc = process.wait() # wait to terminate
+    return rc
+
 def encrypt_file(source_file, destination_dir, key):
     '''
     GPG-encrypts source_file with key, saving encrypted file to destination_dir
@@ -59,9 +73,9 @@ def encrypt_file(source_file, destination_dir, key):
     Returns path to the encrypted file
     '''
     # init gpg
-    gpg = gnupg.GPG() # use default - current user's home
+    gpg = gnupg.GPG() # use default - current user's $HOME/.gpg
     public_keys = gpg.list_keys()
-    assert key in [key['keyid'] for key in public_keys], \
+    assert key in [k['keyid'] for k in public_keys], \
         "Could not find the specified PUBLIC_KEY_ID in keyring"
 
     # build encrypted filename and path
@@ -70,12 +84,11 @@ def encrypt_file(source_file, destination_dir, key):
 
     try:
         fp = open(source_file, 'rb')
-        #encrypted_data = gpg.encrypt_file(
-        #    fp,         # file object to encrypt
-        #    key,        # public key of recipient
-        #    output=ef_path # path to encrypted file
-        #)
-        encrypted_data = gpg.encrypt_file(fp, key, output=ef_path)
+        encrypted_data = gpg.encrypt_file(
+            fp,             # file object to encrypt
+            key,            # public key of recipient
+            output=ef_path  # path to encrypted file
+        )
         fp.close()
     except IOError as e:
         error(e)
@@ -106,14 +119,14 @@ def upload_to_s3(local_file, bucket_name, key_name=None, acl='private'):
 
     debug("Uploaded %s to S3" % local_file)
 
-def shred_file(f):
+def shred(f):
     '''
     Uses the *nix command shred to seriously erase f
     '''
     # check to see if we have shred installed; should this be an
     # assertionError, or a warning (and we default to rm)?
     assert whereis("shred") is not None, "Please install shred."
-    process = subprocess.Popen(['shred', '-fuz', source_file], shell=False)
+    process = subprocess.Popen(['shred', '-fuz', f], shell=False)
     if process.wait() == 0: # wait for shred to complete, check return code
         debug("Shredded %s" % f)
     else: # some kind of error occurred; handle
@@ -138,15 +151,16 @@ def main():
             # encrypt file
             ef_path = encrypt_file(job.body, TEMP_DIR, PUBLIC_KEY_ID)
             # upload to s3
-            #upload_to_s3(ef_path, BUCKET_NAME)
+            upload_to_s3(ef_path, BUCKET_NAME)
             # shred encrypted and original file
-            # shred(job.body)
-            # shred(ef_path)
+            shred(job.body)
+            shred(ef_path)
 
             # we handled that job; remove it from the queue
             job.delete()
         else:
-            debug("No job found")
+            # debug("No job found")
+            pass
 
         time.sleep(10)  # how often to check and handle a job
 
