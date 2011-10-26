@@ -162,6 +162,6 @@ def main():
             # debug("No job found")
             pass
 
-        time.sleep(10)  # how often to check and handle a job
+        time.sleep(5)  # how often to check and handle a job
 
 if __name__ == "__main__": main()
