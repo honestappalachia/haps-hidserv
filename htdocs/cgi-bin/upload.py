@@ -15,8 +15,9 @@ It receives the form contents as cgi.FieldStorage. Then it
 import cgi
 import cgitb; cgitb.enable()
 import os, sys
+import subprocess
 import magic
-import beanstalkc
+
 from mylogging import debug, info, warning, error, critical
 
 # thttpd(8) CGI :
@@ -95,12 +96,16 @@ if field in form and form[field].filename:
             f = open(os.path.join(UPLOAD_DIR, clean_fn), 'wb')
             for chunk in fbuffer(filefield.file):
                 f.write(chunk)
+
+            filename = os.path.abspath(os.path.join(UPLOAD_DIR, clean_fn))
+            # run upload handler
+            info("Calling upload handler")
+            process = subprocess.call(
+                ['python', 'upload_handler.py', filename],
+                shell=False
+            )
+
             MESSAGE = span("%s was successfully uploaded." % (clean_fn), "ok")
-            beanstalk = beanstalkc.Connection(host='localhost', port=11300)
-            # places job - absolute path to uploaded file
-            beanstalk.put(os.path.abspath(os.path.join(UPLOAD_DIR, clean_fn)))
-            debug("Enqueued %s" % os.path.abspath(os.path.join(UPLOAD_DIR, clean_fn)))
-            beanstalk.close()
         except IOError:
             MESSAGE = span("An error occurred writing the file.", "error")
         finally:
