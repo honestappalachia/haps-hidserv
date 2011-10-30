@@ -99,10 +99,11 @@ if field in form and form[field].filename:
 
             filename = os.path.abspath(os.path.join(UPLOAD_DIR, clean_fn))
             # run upload handler
-            info("Calling upload handler")
-            process = subprocess.call(
+            process = subprocess.Popen(
                 ['python', 'upload_handler.py', filename],
-                shell=False
+                shell=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
             )
 
             MESSAGE = span("%s was successfully uploaded." % (clean_fn), "ok")
