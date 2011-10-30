@@ -152,8 +152,8 @@ def main():
 
     assert os.path.isfile(filename), "filename does not reference a file: %s" % filename
 
-    info("upload_handler running: %s" % filename)
+    info("UPLOAD HANDLER START")
     upload_handler(filename)
-    info("upload_handler completed: %s" % filename)
+    info("UPLOAD HANDLER COMPLETE")
 
 if __name__ == "__main__": main()
