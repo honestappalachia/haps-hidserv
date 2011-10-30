@@ -12,9 +12,7 @@ Setup
     `sudo apt-get install thttpd`
 3.  [Set Up a Hidden Service]
 4.  Clone this repo
-5.  [Install beanstalkd]
-    `sudo apt-get install beanstalkd`
-6.  [Install gnupg]
+5.  [Install gnupg]
     `sudo apt-get install gnupg`
 6.  Install Python dependencies. We recommend using pip. To install pip
     1.	`sudo apt-get install python-setuptools`
@@ -25,9 +23,8 @@ Python dependencies
 -------------------
 
 1.  [python-magic]
-2.  [beanstalkc]
-3.  [python-gnupg]
-4.  [boto]
+2.  [python-gnupg]
+3.  [boto]
 
 The directory structure of this repo is set up so everything should work "out of the box." All you will have to do is edit the following settings in thttpd.conf to match your local environment and installation directory: dir, user, data-dir, logfile, pidfile
 
