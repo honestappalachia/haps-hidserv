@@ -88,9 +88,9 @@ def parse_cmdline(args):
 def main():
     check_dict = {
         "tor":          "tor --runasdaemon 1",
-        "beanstalkd":   "beanstalkd -d",
+        #"beanstalkd":   "beanstalkd -d",
         "thttpd":       "thttpd -C thttpd.conf",
-        "python upload_worker.py": "python upload_worker.py",
+        #"python upload_worker.py": "python upload_worker.py",
     }
     cmd = parse_cmdline(sys.argv)
     for program, command in check_dict.items():
