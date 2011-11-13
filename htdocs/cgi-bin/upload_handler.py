@@ -103,7 +103,8 @@ def upload_to_s3(local_file, bucket_name, key_name=None, acl='private'):
     else:
         k.key = local_file.split("/")[-1]
 
-    k.set_contents_from_filename(local_file)
+    # encrypt_key=True for AES-256 encryption while at rest on Amazon's servers
+    k.set_contents_from_filename(local_file, encrypt_key=True)
     k.set_acl(acl)
 
     debug("Uploaded %s to S3" % local_file)
@@ -152,7 +153,6 @@ def main():
 
     assert os.path.isfile(filename), "filename does not reference a file: %s" % filename
 
-    info("UPLOAD HANDLER START")
     upload_handler(filename)
     info("UPLOAD HANDLER COMPLETE")
 
