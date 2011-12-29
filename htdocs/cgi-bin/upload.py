@@ -12,61 +12,48 @@ It receives the form contents as cgi.FieldStorage. Then it
 
 # TODO: check for exisiting file with the same name; use renaming scheme
 
+import os
+import sys
+
 import cgi
+# DO NOT USE cgitb in production
 import cgitb; cgitb.enable()
-import os, sys
+
 import subprocess
-import magic
+import hashlib
+import re
 
-from mylogging import debug, info, warning, error, critical
+import mylogging as LOG
 
-# thttpd(8) CGI :
-# CGI scripts run with the directory they live in as their current working directory
-UPLOAD_DIR = "../uploads/"
-
-# Whitelist of allowed filetypes
 # TODO: Complete list of useful filetypes to upload
-ALLOWED_FILETYPES = set([
-    # format: (extension, MIME type),
-    ('.txt', 'text/plain'),
-    ('.pdf', 'application/pdf'),
-    ('.doc', 'application/msword'),
-    ('.xls', 'application/vnd.ms-excel'),
+ALLOWED_EXTENSIONS = set([
+    'txt', 'pdf',
+    'doc', 'xls', 'ppt',
+    'docx', 'xlsx', 'pptx',
 ])
 
-MAX_FILESIZE = (1024**2)*500 # max file size is 500mb
+MAX_FILESIZE = (1024**2)*200 # max file size is 200mb
+UPLOAD_DIR = "/tmp"
 
-INFO = {}   # Store metadata about the file being uploaded; primarily for debugging
 MESSAGE = ""
 
-def allowed_ft(f):
+def allowed_file(filename):
     '''
-    Use python-magic to check the filetype of f (path relative to script)
-    Return True if allowed
+    Check if file type of filename is allowed based on extension
     '''
-    m = magic.Magic(mime=True)
-
-    # check MIME type
-    mtype = m.from_buffer(f.read(1024))
-    INFO['mime_type'] = mtype
-    if mtype in [x[1] for x in ALLOWED_FILETYPES]:
-        return True
-    else:
-        return False
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 def allowed_size(f):
     '''
-    Returns true if the size of f is less than MAX_FILESIZE
+    Returns True if the size of f is less than or equal to MAX_FILESIZE
     '''
-    # Thanks to Trac developers, responding to the replacement of StringIO
-    # (which supports len) with cStringIO (no len) in the cgi module in Python >= 2.5
     # for tip on getting filesize from cStringIO
     # http://trac.edgewall.org/ticket/4311
     f.seek(0, os.SEEK_END) # http://docs.python.org/library/stdtypes.html#file.seek
     fsize = f.tell()
     f.seek(0)
 
-    INFO['size'] = fsize
     if fsize <= MAX_FILESIZE:
         return True
     else:
@@ -83,37 +70,72 @@ def fbuffer(f, chunk_size=10000):
         if not chunk: break
         yield chunk
 
-form = cgi.FieldStorage() # this should only be instantiated once
-field = "file"
+def secure_filename(filename):
+    '''
+    Given a filename, returns a secure version of it that is safe to
+    pass to os.path.join on the server
 
-if field in form and form[field].filename:
-    filefield = form[field]
-    # strip leading name to avoid directory traversal attacks
-    clean_fn = os.path.basename(filefield.filename)
-    # check filetype
-    if allowed_ft(filefield.file) and allowed_size(filefield.file):
+    Thanks to Werkzeug Project for the Unicode escaping code
+    https://github.com/mitsuhiko/werkzeug/
+    '''
+    if isinstance(filename, unicode):
+        from unicodedata import normalize
+        filename = normalize('NFKD', filename).encode('ascii', 'ignore')
+
+    return '_'.join(os.path.basename(filename).split())
+
+# cgi.FieldStorage should only be instantiated once
+# keep_blank_values=True?
+form = cgi.FieldStorage()
+
+if "file" in form and form["file"].filename:
+    file_field = form["file"]
+
+    # Check if file is allowed to be uploaded
+    if allowed_file(file_field.filename) and allowed_size(file_field.file):
         try:
-            f = open(os.path.join(UPLOAD_DIR, clean_fn), 'wb')
-            for chunk in fbuffer(filefield.file):
+            # Save uploaded file
+            filename = secure_filename(file_field.filename)
+            upload_path = os.path.abspath(
+                os.path.join(UPLOAD_DIR, filename))
+            f = open(upload_path, 'wb')
+            for chunk in fbuffer(file_field.file):
                 f.write(chunk)
+            f.close()
 
-            filename = os.path.abspath(os.path.join(UPLOAD_DIR, clean_fn))
-            # run upload handler
-            process = subprocess.Popen(
-                ['python', 'upload_handler.py', filename],
-                shell=False,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
+            # Hash file for authentication
+            sha256 = hashlib.sha256()
+            block_size = 8192
+            with open(upload_path, 'rb') as f:
+                for chunk in iter(lambda: f.read(block_size), ''):
+                    sha256.update(chunk)
+            sha256digest = sha256.hexdigest()
+
+            # Get comment, or say there wasn't one
+            comment = form["comment"].value or "None"
+
+            # Write summary to file
+            summary_filename = "%s-summary" % filename
+            summary_file = open(os.path.abspath(os.path.join(
+                UPLOAD_DIR, summary_filename
+            )), 'w')
+            summary_file.write("filename: %s\n" % filename)
+            summary_file.write("  SHA256: %s\n" % sha256digest)
+            summary_file.write(" Comment: %s\n" % comment)
+            summary_file.close()
+
+            # Call upload handler
+            pid = subprocess.Popen(
+                ['python', 'upload_handler.py', filename, summary_filename]
             )
 
-            MESSAGE = span("%s was successfully uploaded." % (clean_fn), "ok")
+            MESSAGE = span("%s was successfully uploaded." % (filename), "ok")
         except IOError:
             MESSAGE = span("An error occurred writing the file.", "error")
-        finally:
-            f.close()
+
     else:
-	# TODO: make MESSAGE to user more useful
-	MESSAGE = span("We do not allow users to upload files of this type and/or size", "error")
+        # Upload failed size or type check
+        MESSAGE = span("We do not allow users to upload files of this type and/or size", "error")
 else:
     MESSAGE = span("You didn't specify a file.", "error")
 
@@ -130,7 +152,8 @@ Content-type: text/html\n
 </head>
 <body>
 <p>%s</p>
-<a href="/">&laquo; Home</a>
+<p><a href="/">&laquo; Upload another file</a></p>
+<p><a href="https://www.honestappalachia.org">&laquo; Back to Honest Appalachia</a></p>
 </body>
 </html>
 ''' % (MESSAGE, )

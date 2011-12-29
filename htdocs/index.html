@@ -1,31 +1,37 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
 <head>
 <title>Upload a file</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <style>
-  form ul { list-style-type: none; } 
-  label { float: left; width:25%; margin-right:0.5em; padding-top:0.2em; text-align:right; }
+  form ol { list-style-type: none; padding-left:1em;} 
+  form fieldset { width:38em; }
+  label { float:left; width:12em; margin-right:0.5em; padding-top:0.2em; }
+  .warning { background:#FFCFCF; border:2px solid #FF6B6B; padding:4px; }
 </style>
 </head>
 <body>
 
-<p>This site is under development.</p>
+<p>Welcome to the Honest Appalachia upload page.</p>
+<p><span class="warning">This site is under development.</span></p>
 
 <form enctype="multipart/form-data" method="post" action="/cgi-bin/upload.py">
-  <ul>
-    <li>
-      <fieldset>
-        <legend>Upload file</legend>
+  <fieldset>
+    <legend>Upload file</legend>
+    <ol>
+      <li>
         <label for="file">Choose a file to upload: </label>
         <input name="file" id="file" type="file" /><br />
+      </li>
+      <li>
         <label for="comment">Comment (optional): </label>
-        <textarea id="comment" name="comment" rows="10" cols="40" ></textarea><br />
+        <textarea id="comment" name="comment" rows="12" cols="48" ></textarea><br />
+      </li>
+      <li>
         <input type="submit" value="Upload File" />
-    </fieldset>
-    </li>
-  </ul>
+      </li>
+    </ol>
+  </fieldset>
 </form>
 
 </body>

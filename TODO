@@ -1,0 +1,2 @@
+1.  encrypt_file is behaving badly again - silent failure.
+    Better to just replace with subprocess call to gpg?

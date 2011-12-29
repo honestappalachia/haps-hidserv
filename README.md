@@ -1,23 +1,26 @@
 haps-hidserv
 ============
 
-A Tor hidden service for anonymous file upload, using thttpd and Python.
-Developed on Ubuntu 10.04, but is expected to work on any *nix.
+A Tor hidden service for anonymous file upload, using Apache and Python.
+Developed on Ubuntu 10.04, but is expected to work (with minor modifications) on any *nix.
 
 Setup
 =====
 
+You will need to run these commands as root. Use sudo!
+
 1.  [Install Tor]
-2.  [Install thttpd]
-    `sudo apt-get install thttpd`
+2.  [Install Apache]
+    `apt-get install apache2 apache2-doc apache2-utils`
+    `apt-get install libapache2-mod-python`
 3.  [Set Up a Hidden Service]
 4.  Clone this repo
 5.  [Install gnupg]
-    `sudo apt-get install gnupg`
+    `apt-get install gnupg`
 6.  Install Python dependencies. We recommend using pip. To install pip
-    1.	`sudo apt-get install python-setuptools`
-    2.	`sudo easy_install pip`
-    3.	Now, to install *packagename*: `sudo pip install *packagename*`
+    1.	`apt-get install python-setuptools`
+    2.	`easy_install pip`
+    3.	Now, to install *packagename*: `pip install *packagename*`
 
 Python dependencies
 -------------------
@@ -48,7 +51,7 @@ Also note that the permissions on the files are world-readable, which means you 
 For these reasons among others, we do not recommend deploying this site as-is. Do so at your own risk.
 
 [install tor]: https://www.torproject.org/docs/tor-doc-unix.html.en
-[install thttpd]: http://acme.com/software/thttpd/
+[install apache2]: http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
 [set up a hidden service]: https://www.torproject.org/docs/tor-hidden-service.html.en
 [python-magic]: https://github.com/ahupp/python-magic
 [Install beanstalkd]: http://kr.github.com/beanstalkd/
