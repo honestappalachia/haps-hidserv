@@ -58,7 +58,7 @@ Python dependencies
     Amazon Web Services (AWS) library
 
 [install tor]: https://www.torproject.org/docs/tor-doc-unix.html.en
-[install apache2]: http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
+[Install Apache]: http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
 [set up a hidden service]: https://www.torproject.org/docs/tor-hidden-service.html.en
 [python-magic]: https://github.com/ahupp/python-magic
 [Install beanstalkd]: http://kr.github.com/beanstalkd/
