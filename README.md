@@ -2,12 +2,35 @@ haps-hidserv
 ============
 
 A Tor hidden service for anonymous file upload, using Apache and Python.
-Developed on Ubuntu 10.04, but is expected to work (with minor modifications) on any *nix.
+Developed on Ubuntu 10.04, but should work (with minor modifications) on any *nix.
+
+What is here?
+-------------
+
+1.  hiddenservice.onion
+
+    Apache virtualhost configuration file for hidden service
+
+2.  htdocs/index.html
+
+    Simple upload form. The upload is handled by the upload.py CGI script.
+
+3.  htdocs/cgi-bin/upload.py
+
+    CGI script that handles file uploads.
+
+4.  htdocs/cgi-bin/upload_handler.py
+
+    Process file uploads.
+
+5.  htdocs/cgi-bin/mylogging.py
+
+    Wrapper for logging
 
 Setup
 =====
 
-You will need to run these commands as root. Use sudo!
+You will need to run these commands as root or use sudo.
 
 1.  [Install Tor]
 2.  [Install Apache]
@@ -25,30 +48,8 @@ You will need to run these commands as root. Use sudo!
 Python dependencies
 -------------------
 
-1.  [python-magic]
-2.  [python-gnupg]
-3.  [boto]
-
-The directory structure of this repo is set up so everything should work "out of the box." All you will have to do is edit the following settings in thttpd.conf to match your local environment and installation directory: dir, user, data-dir, logfile, pidfile
-
-To launch the website, `thttpd -C thttpd.conf`. To kill thttpd, `killall thttpd` or (slightly cooler)
-
-    kill -9 `cat run/thttpd.pid`
-
-If you're having trouble, try running with the debug flag: `thttpd -C thttpd.conf -D`. Note this will also prevent thttpd from running as a background daemon. This behavior can be useful, especially if you want to run thttpd from a script: see the man page for more information.
-
-The site will be running at localhost:5222 (or whatever options you set for host and port in thttpd.conf). 
-
-Notes
-=====
-
-The thttpd setup here is bare-bones and designed for development.
-
-**IMPORTANT:** note the chroot option is disabled. If you enable it, none of the CGI scripts will work unless you hand-build a chroot environment to accompany them. Although this is not hard to do, it is not necessary for development and would waste a lot of space in the repo.
-
-Also note that the permissions on the files are world-readable, which means you thttpd will allow you to index them. Try visiting localhost:5222/uploads to see what I mean. 
-
-For these reasons among others, we do not recommend deploying this site as-is. Do so at your own risk.
+1.  [python-gnupg]
+2.  [boto]
 
 [install tor]: https://www.torproject.org/docs/tor-doc-unix.html.en
 [install apache2]: http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
