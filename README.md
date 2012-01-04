@@ -40,16 +40,22 @@ You will need to run these commands as root or use sudo.
 4.  Clone this repo
 5.  [Install gnupg]
     `apt-get install gnupg`
+6.  [Install beanstalkd]
+    `apt-get install beanstalkd`
 6.  Install Python dependencies. We recommend using pip. To install pip
     1.	`apt-get install python-setuptools`
     2.	`easy_install pip`
-    3.	Now, to install *packagename*: `pip install *packagename*`
+    3.	Now, to install <packagename>: `pip install <packagename>`
 
 Python dependencies
 -------------------
 
 1.  [python-gnupg]
+    gpg client library
+2.  [beanstalkc]
+    beanstalkd client library
 2.  [boto]
+    Amazon Web Services (AWS) library
 
 [install tor]: https://www.torproject.org/docs/tor-doc-unix.html.en
 [install apache2]: http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
