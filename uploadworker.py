@@ -159,15 +159,16 @@ def encrypt(source_file, destination_dir=TEMPORARY_DIR, key=PUBLIC_KEY_ID):
     LOG.info("Encrypted %s -> %s" % (source_file, ef_path))
     return ef_path
 
-def upload_to_s3(local_file, bucket=AWS_BUCKET, key_name=None, acl='private'):
+def upload_to_s3(local_file,
+    bucket_name=AWS_BUCKET, key_name=None, acl='private'):
     '''
     Uploads local_file to bucket on Amazon S3
     key_name is the "filename" on Amazon S3, defaults to the local file's name
     '''
     # Connect to Amazon S3
     conn = S3Connection(AWS_ACCESS_KEY, AWS_SECRET_KEY)
-    bkt = conn.create_bucket(bucket)
-    k = Key(bkt)
+    bucket = conn.create_bucket(bucket_name)
+    k = Key(bucket)
     
     # Set key, defaulting to local file's name
     if key_name:
@@ -179,7 +180,7 @@ def upload_to_s3(local_file, bucket=AWS_BUCKET, key_name=None, acl='private'):
     k.set_contents_from_filename(local_file, encrypt_key=True)
     k.set_acl(acl)
 
-    LOG.info("Uploaded %s to S3 bucket %s" % (local_file, bucket))
+    LOG.info("Uploaded %s to S3 bucket %s" % (local_file, bucket_name))
 
 def shred(f):
     '''
