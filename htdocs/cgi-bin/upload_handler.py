@@ -68,13 +68,13 @@ def encrypt_file(source_file, destination_dir, key):
 
     Returns path to the encrypted file
     '''
-    # init gpg
-    gpg = gnupg.GPG() # use default - current user's $HOME/.gpg
+    # Init GPG
+    gpg = gnupg.GPG("/home/anon/.gpg") # Defaults to current user's $HOME/.gpg
     public_keys = gpg.list_keys()
     assert key in [k['keyid'] for k in public_keys], \
         "Could not find the specified PUBLIC_KEY_ID in keyring"
 
-    # build encrypted filename and path
+    # Build encrypted filename and path
     e_filename = source_file.split("/")[-1] + ".gpg"
     ef_path = os.path.join(destination_dir, e_filename)
 
@@ -156,6 +156,7 @@ def archive(*files):
     tar_cmd.extend(arg_list)
     process = subprocess.Popen(tar_cmd, shell=False)
     rc = process.wait()
+    LOG.info(tar_cmd)
     assert rc == 0, "Archiving step failed with return code %s" % rc
 
     return archive_path
@@ -171,17 +172,20 @@ def main():
 
     LOG.info("upload_handler enter")
 
-    # Archive the files
-    archive_path = archive(*filenames)
-    # Encrypt the archive
-    ea_path = encrypt_file(archive_path, TEMP_DIR, PUBLIC_KEY_ID)
-    # upload to S3
-    upload_to_s3(ea_path, BUCKET_NAME)
-    # shred everything
-    for fn in filenames:
-        shred(fn)
-    shred(archive_path)
-    shred(ea_path)
+    try:
+        # Archive the files
+        archive_path = archive(*filenames)
+        # Encrypt the archive
+        ea_path = encrypt_file(archive_path, TEMP_DIR, PUBLIC_KEY_ID)
+        # upload to S3
+        upload_to_s3(ea_path, BUCKET_NAME)
+        # shred everything
+        for fn in filenames:
+            shred(fn)
+        shred(archive_path)
+        shred(ea_path)
+    except Exception, err:
+        LOG.error(err)
 
     LOG.info("upload_handler exit")
 
