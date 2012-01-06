@@ -194,12 +194,10 @@ def shred(f):
         LOG.error("Shredding %s failed: shred returned %s"
             % (f, process.returncode))
 
-def handle(body):
+def handle(job):
     """
     Handles an upload job from the queue
     """
-    job = json.loads(body)
-
     # Write summary file
     sf_path = write_summary_file(job)
 
@@ -232,15 +230,15 @@ beanstalk = beanstalkc.Connection(host='localhost', port=14711)
 try:
     while(True):
         # Option: implement interference with timeout=n
-        # will this block in an annoying way?
         job = beanstalk.reserve() 
+        body = json.loads(job.body)
         try:
-            # LOG.info("Handling %s" )
-            handle(job.body)
-            LOG.info("Handled %s" % json.loads(job.body)['filename'])
+            LOG.info("Started %s" % body['filename'])
+            handle(body)
+            LOG.info("Handled %s" % body['filename'])
         except Exception, err:
             LOG.error("An error occurred handling %s: %s" % 
-                (json.loads(job.body)['filename'], err)
+                (body['filename'], err)
             )
         job.delete()
 except KeyboardInterrupt:
