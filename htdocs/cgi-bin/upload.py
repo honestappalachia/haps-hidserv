@@ -14,14 +14,15 @@ It receives the form contents as cgi.FieldStorage. Then it
 
 import os
 import sys
-
 import cgi
-# DO NOT USE cgitb in production
+# Enable cgitb for debugging. Do not use in production.
 import cgitb; cgitb.enable()
-
+import re
 import subprocess
 import hashlib
-import re
+import json
+
+import beanstalkc
 
 import mylogging as LOG
 
@@ -36,13 +37,15 @@ MAX_FILESIZE = (1024**2)*200 # max file size is 200mb
 UPLOAD_DIR = "/tmp"
 
 MESSAGE = ""
+INFO = {}
 
 def allowed_file(filename):
     '''
     Check if file type of filename is allowed based on extension
     '''
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+    ext = filename.rsplit('.', 1)[1]
+    INFO['filetype'] = ext
+    return '.' in filename and ext in ALLOWED_EXTENSIONS
 
 def allowed_size(f):
     '''
@@ -53,6 +56,8 @@ def allowed_size(f):
     f.seek(0, os.SEEK_END) # http://docs.python.org/library/stdtypes.html#file.seek
     fsize = f.tell()
     f.seek(0)
+
+    INFO['size'] = fsize
 
     if fsize <= MAX_FILESIZE:
         return True
@@ -78,56 +83,60 @@ def secure_filename(filename):
     Thanks to Werkzeug Project for the Unicode escaping code
     https://github.com/mitsuhiko/werkzeug/
     '''
+    # Beef up with dangerous character strip code as well
     if isinstance(filename, unicode):
         from unicodedata import normalize
         filename = normalize('NFKD', filename).encode('ascii', 'ignore')
 
     return '_'.join(os.path.basename(filename).split())
 
+def dict_as_ul(d):
+    """
+    Converts a dictionary into an HTML unordered list
+    """
+    html = []
+    for k, v in d.items():
+        html.append("<li>%s: %s</li>" % (k, v))
+    html.insert(0, "<ul>")
+    html.append("</ul>")
+    return ''.join(html)
+
 # cgi.FieldStorage should only be instantiated once
 # keep_blank_values=True?
 form = cgi.FieldStorage()
+file_field_name = "file"
 
-if "file" in form and form["file"].filename:
-    file_field = form["file"]
+if file_field_name in form and form[file_field_name].filename:
+    file_field = form[file_field_name]
 
     # Check if file is allowed to be uploaded
     if allowed_file(file_field.filename) and allowed_size(file_field.file):
         try:
             # Save uploaded file
             filename = secure_filename(file_field.filename)
-            upload_path = os.path.abspath(
-                os.path.join(UPLOAD_DIR, filename))
+            # is using abspath really what we want?
+            upload_path = os.path.abspath(os.path.join(UPLOAD_DIR, filename))
             f = open(upload_path, 'wb')
             for chunk in fbuffer(file_field.file):
                 f.write(chunk)
+            # Set permissions on upload_path for uploadworker
+            # Idea: create a group with the Apache user and the uploadworker user
             f.close()
-
-            # Hash file for authentication
-            sha256 = hashlib.sha256()
-            block_size = 8192
-            with open(upload_path, 'rb') as f:
-                for chunk in iter(lambda: f.read(block_size), ''):
-                    sha256.update(chunk)
-            sha256digest = sha256.hexdigest()
 
             # Get comment, or say there wasn't one
             comment = form["comment"].value or "None"
 
-            # Write summary to file
-            summary_filename = "%s-summary" % filename
-            summary_file = open(os.path.abspath(os.path.join(
-                UPLOAD_DIR, summary_filename
-            )), 'w')
-            summary_file.write("filename: %s\n" % filename)
-            summary_file.write("  SHA256: %s\n" % sha256digest)
-            summary_file.write(" Comment: %s\n" % comment)
-            summary_file.close()
-
-            # Call upload handler
-            pid = subprocess.Popen(
-                ['python', 'upload_handler.py', filename, summary_filename]
-            )
+            # Open connection to beanstalkd
+            beanstalk = beanstalkc.Connection(host='localhost', port=14711)
+            uinf = {
+                'filename': filename,
+                'path': upload_path,
+                'comment': comment
+                }
+            # Enqueue upload job
+            beanstalk.put(json.dumps(uinf))
+            # Close connection beanstalkd
+            beanstalk.close()
 
             MESSAGE = span("%s was successfully uploaded." % (filename), "ok")
         except IOError:
@@ -152,8 +161,10 @@ Content-type: text/html\n
 </head>
 <body>
 <p>%s</p>
+<h1>Info:</h1>
+%s
 <p><a href="/">&laquo; Upload another file</a></p>
 <p><a href="https://www.honestappalachia.org">&laquo; Back to Honest Appalachia</a></p>
 </body>
 </html>
-''' % (MESSAGE, )
+''' % (MESSAGE, dict_as_ul(INFO), )
