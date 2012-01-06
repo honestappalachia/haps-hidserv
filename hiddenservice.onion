@@ -4,12 +4,10 @@ NameVirtualHost 127.0.0.1:5222
 Listen 127.0.0.1:5222
 
 <VirtualHost 127.0.0.1:5222>
-    ServerAdmin noone@hiddenservice.org
-    ServerName  hiddenservice.org
-    ServerAlias www.hiddenservice.org
-    DocumentRoot /home/hiddenservice/htdocs
-    ErrorLog /home/hiddenservice/logs/error.log
-    CustomLog /home/hiddenservice/logs/access.log combined
+    ServerName  hiddenservice.onion
+    DocumentRoot /home/honest/htdocs
+    # ErrorLog /home/honest/logs/error.log
+    SuexecUserGroup honest honest
 </VirtualHost>
 
 ScriptAlias /cgi-bin/ /home/hiddenservice/htdocs/cgi-bin/
@@ -22,8 +20,8 @@ ScriptAlias /cgi-bin/ /home/hiddenservice/htdocs/cgi-bin/
     AddHandler default-handler .html .htm # handle html files normally
 </Directory>
 
-# Replaces all error messages with blank strings
-# So we don't leak identifying information (the defaults may leak your IP!)
+# Replace all error messages with blank strings
+# Avoids leaking identifying information (the defaults may leak your IP!)
 
 ErrorDocument 300 " "
 ErrorDocument 301 " "
