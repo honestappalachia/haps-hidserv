@@ -1,2 +1,15 @@
-1.  encrypt_file is behaving badly again - silent failure.
-    Better to just replace with subprocess call to gpg?
+1.  Generation of the NOISE file is slow. Is there a more efficient way?
+    a.  Possible timing attack where generation time of noise file -> size of NOISE file?
+2.  More comprehensive/useful logging
+3.  Better error handling in the queue. Right now if something goes wrong, the job is never tried again and also not cleaned up. "Bury" jobs?
+4.  Test Firewall
+5.  ext4 and shred effectiveness. Does ext4 overwrite data "in-place"?
+6.  Minimizing logs - maybe use part of sha hash as an identifier, instead of filename? Double-check what Apache is logging in error.log.
+7.  Log rotation - for both logs from uploadworker, upload cgi, and apache.
+8.  Need startup script for beanstalkd
+9.  Need to daemonize uploadworker - use python-daemon?
+
+Fixes
+-----
+
+1.  gnupg encrypt_file fails silently if there is a problem with the key -- see documentation for details. Added a hack to check for the successful creation of the encrypted file.
