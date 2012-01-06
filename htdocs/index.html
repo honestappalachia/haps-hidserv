@@ -4,16 +4,16 @@
 <title>Upload a file</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <style>
-  form ol { list-style-type: none; padding-left:1em;} 
+  form ol { list-style-type:none; padding-left:1em;} 
   form fieldset { width:600px; }
-  label { float:left; width:200px; margin-right:0.5em; padding-top:0.2em; }
+  li { margin-bottom:1em; }
   .warning { background:#FFCFCF; border:2px solid #FF6B6B; padding:4px; }
 </style>
 </head>
 <body>
 
 <p>Welcome to the Honest Appalachia upload page.</p>
-<p>You can help us by including descriptive comment about the origin or significance of your upload. <em>Do not include any personally identifying information.</em></p>
+<p>You can help us by including descriptive comment about the origin or significance of your upload. <br><em>Do not include any personally identifying information.</em></p>
 <p><span class="warning">This site is under development.</span></p>
 
 <form enctype="multipart/form-data" method="post" action="/cgi-bin/upload.py">
@@ -21,12 +21,12 @@
     <legend>Upload file</legend>
     <ol>
       <li>
-        <label for="file">Choose a file to upload: </label>
-        <input name="file" id="file" type="file" /><br />
+        <label for="file">Choose a file to upload: </label><br>
+        <input name="file" id="file" type="file" /><br>
       </li>
       <li>
-        <label for="comment">Comment (optional): </label>
-        <textarea id="comment" name="comment" rows="12" cols="48" ></textarea><br />
+        <label for="comment">Comment (optional): </label><br>
+        <textarea id="comment" name="comment" rows="12" cols="48" ></textarea><br>
       </li>
       <li>
         <input type="submit" value="Upload File" />
