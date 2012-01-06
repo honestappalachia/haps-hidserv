@@ -191,7 +191,7 @@ def shred(f):
     if process.wait() == 0: # wait for shred to complete, check return code
         LOG.info("Shredded %s" % f)
     else: # some kind of error occurred; log 
-        LOG.error("shredding %s failed: shred returned %s"
+        LOG.error("Shredding %s failed: shred returned %s"
             % (f, process.returncode))
 
 def handle(body):
