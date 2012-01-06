@@ -23,6 +23,8 @@ from boto.s3.key import Key
 import logwrapper as LOG
 
 # Settings
+# To store deployment settings, save them in a local file settings.py
+# settings.py is in .gitignore, so you can safely use git
 PUBLIC_KEY_ID = '' # public key to encrypt files, must be in GPG keyring
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
