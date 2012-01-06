@@ -111,7 +111,8 @@ def archive(*paths):
 
     return archive_path
 
-def encrypt(source_file, destination_dir=TEMPORARY_DIR, key=PUBLIC_KEY_ID):
+def encrypt(source_file,
+    destination_dir=TEMPORARY_DIR, key=PUBLIC_KEY_ID):
     '''
     GPG-encrypts source_file with key, saving encrypted file to destination_dir
 
