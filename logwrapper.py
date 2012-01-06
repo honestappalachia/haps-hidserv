@@ -7,8 +7,14 @@ Thanks to http://www.saltycrane.com/blog/2009/10/notes-python-logging/
 import logging
 import sys
 
+# Default log files.
+# Change here or in a local settings.py
 DEBUG_LOG_FILENAME = '/tmp/uploadworker-debug.log'
 WARNING_LOG_FILENAME= '/tmp/uploadworker-warn.log'
+try:
+    from settings import *
+except ImportError:
+    pass
 
 # Set up formatting
 formatter = logging.Formatter('[%(asctime)s] %(levelno)s (%(process)d) %(module)s: %(message)s')
