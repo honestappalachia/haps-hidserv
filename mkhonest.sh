@@ -99,11 +99,12 @@ cp /etc/resolv.conf /etc/resolv.conf.original
 echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
 # Copy iptables rules to startup script and run it to set up firewall
-cp honesttables.sh /etc/init.d/honesttables.sh
-chmod a+x /etc/init.d/honesttables.sh
-/etc/init.d/honesttables.sh
+# TODO: Will this run on subsequent boots? Should I run update-rc.d honestfw defaults
+cp honestfw /etc/init.d/honestfw
+chmod a+x /etc/init.d/honestfw
+/etc/init.d/honestfw
 
-# Setting up users and permissions
+# Set up users and permissions
 
 # Adding the admin user
 # Force them to do this, or just recommend it?
@@ -114,7 +115,7 @@ chmod a+x /etc/init.d/honesttables.sh
 useradd -m -s /bin/bash honest
 echo "
 Created user honest.
-honest executes the upload CGI and handles the worker processes
+honest executes the upload CGI and the upload worker
 Choose a strong password for the user honest:
 "
 passwd honest
@@ -123,9 +124,6 @@ passwd honest
 cp -r htdocs/ /home/honest/
 chown -R honest:honest /home/honest/
 chmod -R 755 /home/honest # 700?
-
-# Copy suexec config
-cp suexec_www-data /etc/apache2/suexec/www-data
 
 # Output results here:
 HS_HOSTNAME = $(cat /var/lib/tor/hidden_service/hostname)
