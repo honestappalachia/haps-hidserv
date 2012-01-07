@@ -27,8 +27,8 @@ NON_TOR="192.168.1.0/24 192.168.0.0/24"
 # You may need to check this on your system. First find out what user Tor
 # is running as. On Ubuntu 10.04 LTS, for example, this user is debian-tor.
 # You can do this with the following command:
-# ps aux | grep /usr/sbin/tor | grep -v grep | awk '{ print $1 }'
-# Then get their user ID: id -u <username>
+# TOR_UID = ps aux | grep /usr/sbin/tor | grep -v grep | awk '{ print $1 }'
+# Or/Then get their user ID: id -u <username>
 TOR_UID="104"
 
 # Tor's TransPort
@@ -37,7 +37,7 @@ TRANS_PORT="9040"
 # Flushes all rules in the default (filter) table
 iptables -F
 # Flushes all rules in the nat table
-# nat = Network Address Translation, modifies packet IP address at the firewall
+# This table is consulted when a packet that creates a new connection is encountered
 iptables -t nat -F
 
 ### NAT RULES ###
@@ -46,9 +46,11 @@ iptables -t nat -F
 # allow packets from Tor user
 iptables -t nat -A OUTPUT -m owner --uid-owner $TOR_UID -j RETURN
 # redirect UDP traffic to port 53, Tor's DNSPort
+# Don't quite get this rule - are we just redirecting traffic that was bound for port 53 to port 53? That doesn't seem useful. Maybe this is why there is that additional /etc/resolv.conf hack.
 iptables -t nat -A OUTPUT -p udp --dport 53 -j REDIRECT --to-ports 53
 
 # allow traffic to any NON_TOR IP and localhost 
+# check on the meaning of this / notation
 for NET in $NON_TOR 127.0.0.0/9 127.128.0.0/10; do
  iptables -t nat -A OUTPUT -d $NET -j RETURN
 done
