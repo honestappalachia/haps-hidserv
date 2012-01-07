@@ -1,0 +1,9 @@
+html { font: 16px/1.5 Verdana, sans-serif; }
+body { width:600px; margin:1em auto; }
+img.center { display:block; margin:0 auto; }
+form ol { list-style-type:none; padding-left:1em;} 
+form fieldset { width:600px; }
+textarea { font:16px/1.5 Verdana, sans-serif; padding:6px;}
+li { margin-bottom:1em; }
+.warning { background:#FFCFCF; border:2px solid #FF6B6B; padding:4px; }
+.ok { background:#C4FFC9; border: 2px solid #73FF7E; padding:4px; }

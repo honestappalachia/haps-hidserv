@@ -138,9 +138,9 @@ if file_field_name in form and form[file_field_name].filename:
             # Close connection beanstalkd
             beanstalk.close()
 
-            MESSAGE = span("%s was successfully uploaded." % (filename), "ok")
+            MESSAGE = span("%s was successfully uploaded. Thank you!" % (filename), "ok")
         except IOError:
-            MESSAGE = span("An error occurred writing the file.", "error")
+            MESSAGE = span("An error occurred while writing the file.", "error")
 
     else:
         # Upload failed size or type check
@@ -154,14 +154,11 @@ Content-type: text/html\n
 <html>
 <head>
 <title>Upload Confirmation</title>
-<style>
-.error { background:#FFCFCF; border:2px solid #FF6B6B; padding:4px; }
-.ok { background:#C4FFC9; border: 2px solid #73FF7E; padding:4px; }
-</style>
+<link rel="stylesheet" type="text/css" href="base.css">
 </head>
 <body>
 <p>%s</p>
-<h1>Info:</h1>
+<h2>Info:</h2>
 %s
 <p><a href="/">&laquo; Upload another file</a></p>
 <p><a href="https://www.honestappalachia.org">&laquo; Back to Honest Appalachia</a></p>
