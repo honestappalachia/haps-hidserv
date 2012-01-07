@@ -3,7 +3,6 @@
 2.  More comprehensive/useful logging
 3.  Better error handling in the queue. Right now if something goes wrong, the job is never tried again and also not cleaned up. "Bury" jobs?
 4.  Test Firewall
-5.  ext4 and shred effectiveness. Does ext4 overwrite data "in-place"?
 6.  Minimizing logs - maybe use part of sha hash as an identifier, instead of filename? Double-check what Apache is logging in error.log.
 7.  Log rotation - for both logs from uploadworker, upload cgi, and apache.
 8.  Need startup script for beanstalkd
@@ -12,4 +11,16 @@
 Fixes
 -----
 
-1.  gnupg encrypt_file fails silently if there is a problem with the key -- see documentation for details. Added a hack to check for the successful creation of the encrypted file.
+1.  gnupg encrypt_file fails silently if there is a problem with the key
+    See documentation for details.
+    Added a hack to check for the successful creation of the encrypted file.
+2.  shred works as usual in ext3/ext4 in data=ordered (default) and data=writeback modes.
+    It does not work normally in data=journal mode.
+    For more info, see the shred manpage and
+    http://ubuntuforums.org/showthread.php?t=1662936
+    To see what file system you're using, use mount or cat /proc/mounts.
+    To see the options you have enabled, cat /etc/fstab.
+    According to kernel docs, data=ordered is the default.
+    http://forums.debian.net/viewtopic.php?f=10&t=58522
+    Note that data=writeback may pose a security issue after an unclean shutdown:
+    http://www.mjmwired.net/kernel/Documentation/filesystems/ext4.txt
