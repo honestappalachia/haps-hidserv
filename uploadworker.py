@@ -219,12 +219,12 @@ def handle(job):
     shred(apath)
     shred(epath)
 
-# Start beanstalkd with: beanstalkd -l 127.0.0.1 -p 14711
+# Start beanstalkd with: beanstalkd -l 127.0.0.1 -p 11300
 # Optionally use -b to persist jobs
 # Optionally use -d to run in background
 
 # Open connection to beanstalkd
-beanstalk = beanstalkc.Connection(host='localhost', port=14711)
+beanstalk = beanstalkc.Connection(host='localhost', port=11300)
 
 # Handle jobs
 try:

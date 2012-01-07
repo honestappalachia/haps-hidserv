@@ -73,7 +73,9 @@ a2ensite hiddenservice.onion
 
 # Install beanstalkd
 apt-get install beanstalkd
-# TODO: Beanstalkd startup script
+# Copy config to /etc/default/beanstalkd
+cp /etc/default/beanstalkd /etc/default/beanstalkd.orig
+cp beanstalkd /etc/default/beanstalkd
 
 # Set up upload site
 apt-get install python-setuptools

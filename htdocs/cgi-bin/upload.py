@@ -127,7 +127,7 @@ if file_field_name in form and form[file_field_name].filename:
             comment = form["comment"].value or "None"
 
             # Open connection to beanstalkd
-            beanstalk = beanstalkc.Connection(host='localhost', port=14711)
+            beanstalk = beanstalkc.Connection(host='localhost', port=11300)
             uinf = {
                 'filename': filename,
                 'path': upload_path,
@@ -135,7 +135,7 @@ if file_field_name in form and form[file_field_name].filename:
                 }
             # Enqueue upload job
             beanstalk.put(json.dumps(uinf))
-            # Close connection beanstalkd
+            # Close connection to beanstalkd
             beanstalk.close()
 
             MESSAGE = span("%s was successfully uploaded. Thank you!" % (filename), "ok")
