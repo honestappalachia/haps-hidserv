@@ -2,7 +2,7 @@
 
 ### HONESTTABLES ###
 ### FIREWALL RULES FOR HA HIDDEN SERVICE ###
-### DRAFT 1 ###
+### DRAFT 2 ###
 
 ### TRANSPARENT TOR PROXY ###
 
@@ -29,7 +29,7 @@ NON_TOR="192.168.1.0/24 192.168.0.0/24"
 # You can do this with the following command:
 # TOR_UID = ps aux | grep /usr/sbin/tor | grep -v grep | awk '{ print $1 }'
 # Or/Then get their user ID: id -u <username>
-TOR_UID="104"
+TOR_UID="debian-tor"
 
 # Tor's TransPort
 TRANS_PORT="9040"
