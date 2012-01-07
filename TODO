@@ -1,12 +1,12 @@
-1.  Generation of the NOISE file is slow. Is there a more efficient way?
-    a.  Possible timing attack where generation time of noise file -> size of NOISE file?
-2.  More comprehensive/useful logging
-3.  Better error handling in the queue. Right now if something goes wrong, the job is never tried again and also not cleaned up. "Bury" jobs?
-4.  Test Firewall
+1.  Need startup script for beanstalkd
+2.  Need to daemonize uploadworker - use python-daemon?
+3.  Test Firewall
+4.  More comprehensive/useful logging
+5.  Better error handling in the queue. Right now if something goes wrong, the job is never tried again and also not cleaned up. "Bury" jobs?
 6.  Minimizing logs - maybe use part of sha hash as an identifier, instead of filename? Double-check what Apache is logging in error.log.
 7.  Log rotation - for both logs from uploadworker, upload cgi, and apache.
-8.  Need startup script for beanstalkd
-9.  Need to daemonize uploadworker - use python-daemon?
+8.  Generation of the NOISE file is slow. Is there a more efficient way?
+    a.  Possible timing attack where generation time of noise file -> size of NOISE file?
 
 Fixes
 -----
