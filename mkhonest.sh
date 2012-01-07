@@ -99,9 +99,9 @@ cp /etc/resolv.conf /etc/resolv.conf.original
 echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
 # Copy iptables rules to startup script and run it to set up firewall
-cp honesttables /etc/init.d/honesttables
-chmod a+x /etc/init.d/honesttables
-/etc/init.d/honesttables
+cp honesttables.sh /etc/init.d/honesttables.sh
+chmod a+x /etc/init.d/honesttables.sh
+/etc/init.d/honesttables.sh
 
 # Setting up users and permissions
 
