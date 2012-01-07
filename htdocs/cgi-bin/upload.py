@@ -83,7 +83,7 @@ def secure_filename(filename):
     Thanks to Werkzeug Project for the Unicode escaping code
     https://github.com/mitsuhiko/werkzeug/
     '''
-    # Beef up with dangerous character strip code as well
+    # TODO: Use dangerous character strip code as well
     if isinstance(filename, unicode):
         from unicodedata import normalize
         filename = normalize('NFKD', filename).encode('ascii', 'ignore')
