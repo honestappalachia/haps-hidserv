@@ -82,3 +82,21 @@ iptables -A INPUT -p tcp -m multiport --destination-ports 22,80,9001,9030,9050
 
 # allow established connections on INPUT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# IPv6 rules
+# Tor doesn't support IPv6, and we don't need it.
+
+ip6tables -P INPUT DROP
+ip6tables -P FORWARD DROP
+ip6tables -P OUTPUT DROP
+
+# Established connections are accepted.
+ip6tables -A INPUT  -m state --state RELATED,ESTABLISHED -j ACCEPT
+ip6tables -A OUTPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+ip6tables -A INPUT  -i lo -j ACCEPT
+ip6tables -A OUTPUT -o lo -j ACCEPT
+
+# Everything else is dropped.
+ip6tables -A INPUT  -j DROP
+ip6tables -A OUTPUT -j REJECT --reject-with icmp6-port-unreachable
