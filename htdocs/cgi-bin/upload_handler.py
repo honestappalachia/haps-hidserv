@@ -18,7 +18,7 @@ import gnupg
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 
-import mylogging as LOG
+import logwrapper as LOG
 
 ### SETTINGS ###
 PUBLIC_KEY_ID = '' # public key to encrypt files, must be in gpg keyring

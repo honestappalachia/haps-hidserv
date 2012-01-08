@@ -24,7 +24,7 @@ import json
 
 import beanstalkc
 
-import mylogging as LOG
+import logwrapper as LOG
 
 # TODO: Complete list of useful filetypes to upload
 ALLOWED_EXTENSIONS = set([
