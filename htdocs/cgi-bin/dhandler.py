@@ -20,29 +20,19 @@ from boto.s3.key import Key
 
 import logwrapper as LOG
 
-### SETTINGS ###
+# Settings
+# To store deployment settings, save them in a local file settings.py
+# settings.py is in .gitignore, so you can safely use git
 PUBLIC_KEY_ID = '' # public key to encrypt files, must be in gpg keyring
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
-
-BUCKET_NAME = 'haps-dev'
-TEMP_DIR = "/tmp"
-
+AWS_BUCKET = 'haps-dev'
+TEMPORARY_DIR = "/tmp"
+MAX_NOISE_BYTES = 5 * (1024**2)
 try:
     from settings import *
 except ImportError:
     pass
-
-def whereis(program):
-    '''
-    Returns the path to program on a user's path, if it exists
-    Returns None if it does not
-    '''
-    for path in os.environ.get('PATH', '').split(':'):
-        if os.path.exists(os.path.join(path, program)) and \
-           not os.path.isdir(os.path.join(path, program)):
-            return os.path.join(path, program)
-    return None
 
 def run(program):
     '''
@@ -57,6 +47,32 @@ def run(program):
     )
     rc = process.wait() # wait to terminate
     return rc
+
+def write_summary_file(job):
+    """
+    Writes a summary file of job
+    Returns the path to the summary file
+    """
+    summary_filename = "%s-summary" % job['filename']
+    sf_path = os.path.join(TEMPORARY_DIR, summary_filename)
+    sf = open(sf_path, 'w')
+    sf.write("Filename: %s\n" % job['filename'])
+    sf.write("  SHA256: %s\n" % sha256(job['path']))
+    sf.write(" Comment: %s\n" % job['comment'])
+    sf.close()
+    return sf_path
+
+def write_noise_file():
+    """
+    Writes a NOISE file with a random amount of random bytes
+    to obfuscate file size correlation
+    """
+    noise_path = os.path.join(TEMPORARY_DIR, "NOISE")
+    num_bytes = random.randint(1, MAX_NOISE_BYTES)
+    with open(noise_path, 'w') as f:
+        for byte in xrange(num_bytes):
+            f.write('%c' % random.randint(0, 255))
+    return noise_path
 
 def encrypt_file(source_file, destination_dir, key):
     '''
@@ -150,7 +166,7 @@ def archive(*files):
 
     # timestamp - could this be used against us?
     archive_name = datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S") + ".tgz"
-    archive_path = os.path.join(TEMP_DIR, archive_name)
+    archive_path = os.path.join(TEMPORARY_DIR, archive_name)
 
     tar_cmd = ['tar', 'czvf', archive_path]
     tar_cmd.extend(arg_list)
@@ -176,9 +192,9 @@ def main():
         # Archive the files
         archive_path = archive(*filenames)
         # Encrypt the archive
-        ea_path = encrypt_file(archive_path, TEMP_DIR, PUBLIC_KEY_ID)
+        ea_path = encrypt_file(archive_path, TEMPORARY_DIR, PUBLIC_KEY_ID)
         # upload to S3
-        upload_to_s3(ea_path, BUCKET_NAME)
+        upload_to_s3(ea_path, AWS_BUCKET)
         # shred everything
         for fn in filenames:
             shred(fn)

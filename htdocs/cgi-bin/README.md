@@ -1,6 +1,8 @@
 cgi-bin
 -------
 
+**Note**: dhandler.py is incomplete
+
 There are two sets of upload scripts, corresponding to how they handle processing received uploads.
 
 There are two CGI scripts: `qupload.py` and `dupload.py`. `qupload.py` puts the receieved file in a beanstalkd job queue for later processing. The beanstalkd worker is `qworker.py` and is in the root level of this repository. It needs to be running as a daemon to process jobs. `dupload.py` *directly* calls an upload handler process called `dhandler.py`.
