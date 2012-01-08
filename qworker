@@ -249,6 +249,8 @@ def main():
 
 # Need to check if beanstalkd is running?
 
+# good location for this: /usr/local/sbin
+
 import daemon
 with daemon.DaemonContext(
         files_preserve=[LOG.fh.stream, LOG.fh2.stream],
