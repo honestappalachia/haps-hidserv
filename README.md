@@ -54,8 +54,10 @@ Python dependencies
     gpg client library
 2.  [beanstalkc]
     beanstalkd client library
-2.  [boto]
+3.  [boto]
     Amazon Web Services (AWS) library
+4.  [python-daemon]
+    Daemonizes python scripts
 
 [install tor]: https://www.torproject.org/docs/tor-doc-unix.html.en
 [Install Apache]: http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
@@ -66,3 +68,4 @@ Python dependencies
 [Install gnupg]: http://www.gnupg.org/
 [python-gnupg]: http://code.google.com/p/python-gnupg/
 [boto]: http://code.google.com/p/boto/
+[python-daemon]: http://pypi.python.org/pypi/python-daemon
