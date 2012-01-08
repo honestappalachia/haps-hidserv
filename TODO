@@ -1,3 +1,4 @@
+0.  Clean up direct upload script as well, so either can be used.
 1.  Need to daemonize uploadworker - use python-daemon?
 2.  More comprehensive/useful logging
 3.  Better error handling in the queue. Right now if something goes wrong, the job is never tried again and also not cleaned up. "Bury" jobs?
