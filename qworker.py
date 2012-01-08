@@ -219,29 +219,43 @@ def handle(job):
     shred(apath)
     shred(epath)
 
-# Start beanstalkd with: beanstalkd -l 127.0.0.1 -p 11300
-# Optionally use -b to persist jobs
-# Optionally use -d to run in background
+def main():
+    # Start beanstalkd with: beanstalkd -l 127.0.0.1 -p 11300
+    # Optionally use -b to persist jobs
+    # Optionally use -d to run in background
 
-# Open connection to beanstalkd
-beanstalk = beanstalkc.Connection(host='localhost', port=11300)
+    # Open connection to beanstalkd
+    beanstalk = beanstalkc.Connection(host='localhost', port=11300)
 
-# Handle jobs
-try:
-    while(True):
-        # Option: implement interference with timeout=n
-        job = beanstalk.reserve() 
-        body = json.loads(job.body)
-        try:
-            LOG.info("Started %s" % body['filename'])
-            handle(body)
-            LOG.info("Handled %s" % body['filename'])
-        except Exception, err:
-            LOG.error("An error occurred handling %s: %s" % 
-                (body['filename'], err)
-            )
-        job.delete()
-except KeyboardInterrupt:
-    pass
-finally:
-    beanstalk.close()
+    # Handle jobs
+    try:
+        while(True):
+            # Option: implement interference with timeout=n
+            job = beanstalk.reserve() 
+            body = json.loads(job.body)
+            try:
+                LOG.info("Started %s" % body['filename'])
+                handle(body)
+                LOG.info("Handled %s" % body['filename'])
+            except Exception, err:
+                LOG.error("An error occurred handling %s: %s" % 
+                    (body['filename'], err)
+                )
+            job.delete()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        beanstalk.close()
+
+# Need to run as honest user
+# Can do sudo -u honest ...
+
+# Will it work if we run as honest group?
+#import grp
+#honest_gid = grp.getgrnam('honest').gr_gid
+
+# Need to check if beanstalkd is running?
+
+import daemon
+with daemon.DaemonContext():
+    main()
