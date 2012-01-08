@@ -247,15 +247,10 @@ def main():
     finally:
         beanstalk.close()
 
-# Need to run as honest user
-# Can do sudo -u honest ...
-
-# Will it work if we run as honest group?
-#import grp
-#honest_gid = grp.getgrnam('honest').gr_gid
-
 # Need to check if beanstalkd is running?
 
 import daemon
-with daemon.DaemonContext():
+with daemon.DaemonContext(
+        files_preserve=[LOG.fh.stream, LOG.fh2.stream],
+    ):
     main()
