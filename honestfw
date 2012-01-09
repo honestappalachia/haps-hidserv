@@ -16,7 +16,7 @@
 
 # To prevent DNS leaks, we use Tor's DNSPort. You need to configure
 # resolv.conf to use Tor's DNSPort on the loopback interface: 
-# cp /etc/resolv.conf /etc/resolv.conf.orig
+# cp /etc/resolv.conf /etc/resolv.conf.original
 # echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
 # destinations you don't want routed through Tor
