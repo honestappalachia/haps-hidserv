@@ -99,7 +99,9 @@ def archive(*paths):
     *paths is an arbitrary number of absolute paths to files
     Returns the path to the archive file
     """
-    archive_name = datetime.now().strftime("%Y-%m-%dT%H%M%S") + ".zip"
+    # Name based on the SHA256 sum of the first file
+    sha = sha256(paths[0])
+    archive_name = sha[:16] + ".zip"
     archive_path = os.path.join(TEMPORARY_DIR, archive_name)
 
     zf = zipfile.ZipFile(archive_path, mode='w')
