@@ -30,7 +30,7 @@ ALLOWED_EXTENSIONS = set([
     'zip', 'tar', 'gz', 'rar',
 ])
 
-MAX_FILESIZE = (1024**2)*200 # max file size is 200mb
+MAX_FILESIZE = 200 * (1024**2) # max upload size is 200mb
 UPLOAD_DIR = "/tmp"
 
 MESSAGE = ""
