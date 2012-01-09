@@ -37,7 +37,7 @@ passwd honest
 # Set up honest home directory
 cp -r htdocs/ /home/honest/
 chown -R honest:honest /home/honest/
-chmod -R 755 /home/honest # 700?
+chmod -R +rX /home/honest
 
 ### PACKAGES ###
 
@@ -124,8 +124,6 @@ echo "nameserver 127.0.0.1" > /etc/resolv.conf
 cp honestfw /etc/init.d/honestfw
 chmod a+x /etc/init.d/honestfw
 /etc/init.d/honestfw
-
-
 
 # Output results here:
 HS_HOSTNAME = $(cat /var/lib/tor/hidden_service/hostname)

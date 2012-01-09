@@ -154,7 +154,7 @@ Content-type: text/html\n
 <html>
 <head>
 <title>Upload Confirmation</title>
-<link rel="stylesheet" type="text/css" href="base.css">
+<link rel="stylesheet" type="text/css" href="../base.css">
 </head>
 <body>
 <p>%s</p>

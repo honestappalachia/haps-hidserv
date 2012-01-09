@@ -7,13 +7,19 @@ Thanks to http://www.saltycrane.com/blog/2009/10/notes-python-logging/
 import logging
 import sys
 
-DEBUG_LOG_FILENAME = '/var/log/test-debug.log'
-WARNING_LOG_FILENAME= '/var/log/test-warning.log'
+# Default log files.
+# Change here or in a local settings.py
+DEBUG_LOG_FILENAME = '/tmp/dupload-debug.log'
+WARNING_LOG_FILENAME= '/tmp/dupload-warn.log'
+try:
+    from settings import *
+except ImportError:
+    pass
 
-# set up formatting
+# Set up formatting
 formatter = logging.Formatter('[%(asctime)s] %(levelno)s (%(process)d) %(module)s: %(message)s')
 
-# set up logging to STDOUT for all levels DEBUG and higher
+# Set up logging to STDOUT for all levels DEBUG and higher
 #sh = logging.StreamHandler(sys.stdout)
 #sh.setLevel(logging.DEBUG)
 #sh.setFormatter(formatter)

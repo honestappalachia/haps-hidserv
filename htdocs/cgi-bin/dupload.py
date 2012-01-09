@@ -120,6 +120,8 @@ if file_field_name in form and form[file_field_name].filename:
             f.close()
 
             # Get comment, or say there wasn't one
+            # TODO: Trust no one. Limit the size of this field.
+            # Maybe limit the size of the request overall?
             comment = form["comment"].value or "None"
 
             # Save comment to a temporary file
@@ -130,7 +132,10 @@ if file_field_name in form and form[file_field_name].filename:
             # Call direct upload handler
             process = subprocess.Popen(
                 [sys.executable, 'dhandler.py', upload_path, comment_path],
-                shell=False
+                shell=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE
             )
 
             MESSAGE = span("%s was successfully uploaded. Thank you!" % (filename), "ok")
@@ -149,7 +154,7 @@ Content-type: text/html\n
 <html>
 <head>
 <title>Upload Confirmation</title>
-<link rel="stylesheet" type="text/css" href="base.css">
+<link rel="stylesheet" type="text/css" href="../base.css">
 </head>
 <body>
 <p>%s</p>

@@ -10,9 +10,13 @@ Given an uploaded file and its summary file,
     4. Shreds everything
 """
 
-import sys, os
+import os
+import sys
 import subprocess
-import datetime
+import hashlib
+from datetime import datetime
+import zipfile
+import random
 
 import gnupg
 from boto.s3.connection import S3Connection
@@ -34,31 +38,47 @@ try:
 except ImportError:
     pass
 
-def run(program):
-    '''
-    Run program
-
-    program --  string of shell command, including options
-    returns the processes' return code
-    '''
-    process = subprocess.Popen(
-        '%s' % program,
-        shell=True
+# Make sure we have write access to TEMPORARY_DIR
+try:
+    testfn = os.path.join(TEMPORARY_DIR, "tempdirtest")
+    f = open(testfn, "w")
+    f.write("This is a test")
+    f.close()
+    os.remove(testfn)
+except Exception, e:
+    LOG.critical(
+        "Failed performing file operations in TEMPORARY_DIR %s: %s"
+         % (TEMPORARY_DIR, e)
     )
-    rc = process.wait() # wait to terminate
-    return rc
+    sys.exit(1)
 
-def write_summary_file(job):
+def sha256(path):
     """
-    Writes a summary file of job
+    Returns the SHA256 sum of the file given by path
+    """
+    sha256 = hashlib.sha256()
+    block_size = 8192
+    with open(path, 'rb') as f:
+        for chunk in iter(lambda: f.read(block_size), ''):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def write_summary_file(upload, comment):
+    """
+    Upload and comment are paths to the uploaded file and the comment file
     Returns the path to the summary file
     """
-    summary_filename = "%s-summary" % job['filename']
+    # Extract filename from upload file path
+    filename = upload.split("/")[-1]
+    # Get comment
+    with open(comment, 'r') as f:
+        comment = f.read()
+    summary_filename = "%s-summary" % filename
     sf_path = os.path.join(TEMPORARY_DIR, summary_filename)
     sf = open(sf_path, 'w')
-    sf.write("Filename: %s\n" % job['filename'])
-    sf.write("  SHA256: %s\n" % sha256(job['path']))
-    sf.write(" Comment: %s\n" % job['comment'])
+    sf.write("Filename: %s\n" % filename)
+    sf.write("  SHA256: %s\n" % sha256(upload))
+    sf.write(" Comment: %s\n" % comment)
     sf.close()
     return sf_path
 
@@ -74,25 +94,58 @@ def write_noise_file():
             f.write('%c' % random.randint(0, 255))
     return noise_path
 
-def encrypt_file(source_file, destination_dir, key):
+def archive(*paths):
+    """
+    *paths is an arbitrary number of absolute paths to files
+    Returns the path to the archive file
+    """
+    archive_name = datetime.now().strftime("%Y-%m-%dT%H%M%S") + ".zip"
+    archive_path = os.path.join(TEMPORARY_DIR, archive_name)
+
+    zf = zipfile.ZipFile(archive_path, mode='w')
+    try:
+        for p in paths:
+            if os.path.isfile(p):
+                zf.write(p, arcname=p.split("/")[-1])
+            else:
+                LOG.warning(
+                    "Tried to archive %s, which is not a file. Skipping."
+                    % p )
+    except Exception, err:
+        LOG.error("Error from archive(): %s", err)
+    finally:
+        zf.close()
+
+    return archive_path
+
+def encrypt(source_file,
+    destination_dir=TEMPORARY_DIR, key=PUBLIC_KEY_ID):
     '''
     GPG-encrypts source_file with key, saving encrypted file to destination_dir
 
     source_file     --  absolute path of file to encrypt
     destination_dir --  absolute path of directory to save encrypted file in
-    key             --  keyid of public key to use; must be saved in gpg keyring
+    key             --  keyid of public key to use; must be in gpg keyring
 
     Returns path to the encrypted file
     '''
     # Init GPG
-    gpg = gnupg.GPG("/home/anon/.gpg") # Defaults to current user's $HOME/.gpg
+    gpg = gnupg.GPG() # Defaults to current user's $HOME/.gnupg
     public_keys = gpg.list_keys()
     assert key in [k['keyid'] for k in public_keys], \
-        "Could not find the specified PUBLIC_KEY_ID in keyring"
+        "Could not find PUBLIC_KEY_ID in keyring"
 
     # Build encrypted filename and path
     e_filename = source_file.split("/")[-1] + ".gpg"
     ef_path = os.path.join(destination_dir, e_filename)
+
+    # Might be easier just to do this with subprocess
+    # p = subprocess.Popen(
+    #   ["gpg", "--output", ef_path, "--recipient", key, source_file],
+    #   shell=False
+    # )
+    # if p.wait() == 0: ...
+    # or use subprocess.call, .check_call, .check_output, etc
 
     try:
         fp = open(source_file, 'rb')
@@ -105,21 +158,27 @@ def encrypt_file(source_file, destination_dir, key):
     except IOError as e:
         LOG.error(e)
 
-    LOG.info("Encrypted %s -> %s" % (source_file, ef_path))
+    # Hack - unfortunately, when GPG encrypts a file, it prints an error
+    # message to the console but does not provide a specific error that
+    # python-gnupg can use. So we need to double check.
+    assert os.path.exists(ef_path), \
+        "GPG encryption failed -- check the public key."
 
+    LOG.info("Encrypted %s -> %s" % (source_file, ef_path))
     return ef_path
 
-def upload_to_s3(local_file, bucket_name, key_name=None, acl='private'):
+def upload_to_s3(local_file,
+    bucket_name=AWS_BUCKET, key_name=None, acl='private'):
     '''
-    Uploads local_file to bucket_name on Amazon S3
-
+    Uploads local_file to bucket on Amazon S3
     key_name is the "filename" on Amazon S3, defaults to the local file's name
     '''
-    # connect to Amazon S3
+    # Connect to Amazon S3
     conn = S3Connection(AWS_ACCESS_KEY, AWS_SECRET_KEY)
     bucket = conn.create_bucket(bucket_name)
     k = Key(bucket)
     
+    # Set key, defaulting to local file's name
     if key_name:
         k.key = key_name
     else:
@@ -129,53 +188,18 @@ def upload_to_s3(local_file, bucket_name, key_name=None, acl='private'):
     k.set_contents_from_filename(local_file, encrypt_key=True)
     k.set_acl(acl)
 
-    LOG.info("Uploaded %s to S3" % local_file)
+    LOG.info("Uploaded %s to S3 bucket %s" % (local_file, bucket_name))
 
 def shred(f):
     '''
-    Uses the *nix command shred to seriously erase f
+    Securely erases f with shred
     '''
-    # check to see if we have shred installed; should this be an
-    # assertionError, or a warning (and we default to rm)?
-    assert whereis("shred") is not None, "Please install shred."
     process = subprocess.Popen(['shred', '-fuz', f], shell=False)
     if process.wait() == 0: # wait for shred to complete, check return code
         LOG.info("Shredded %s" % f)
-    else: # some kind of error occurred; handle
-        LOG.error("shredding the file failed: shred returned %s" % (process.returncode))
-
-def archive(*files):
-    '''
-    *files is an arbitrary number of absolute paths to files
-    Files are archived and timestamped
-    '''
-    paths = []
-    filenames = []
-    for f in files:
-        if os.path.isfile(f):
-            paths.append("/".join(f.split("/")[:-1]))
-            filenames.append(f.split("/")[-1])
-
-    # build arg list to tar
-    # -C path filename for each file
-    arg_list = []
-    for x in zip(paths, filenames):
-        arg_list.append("-C")
-        arg_list.append(x[0])
-        arg_list.append(x[1])
-
-    # timestamp - could this be used against us?
-    archive_name = datetime.datetime.now().strftime("%Y-%m-%dT%H%M%S") + ".tgz"
-    archive_path = os.path.join(TEMPORARY_DIR, archive_name)
-
-    tar_cmd = ['tar', 'czvf', archive_path]
-    tar_cmd.extend(arg_list)
-    process = subprocess.Popen(tar_cmd, shell=False)
-    rc = process.wait()
-    LOG.info(tar_cmd)
-    assert rc == 0, "Archiving step failed with return code %s" % rc
-
-    return archive_path
+    else: # some kind of error occurred; log 
+        LOG.error("Shredding %s failed: shred returned %s"
+            % (f, process.returncode))
 
 def main():
     '''
@@ -186,23 +210,32 @@ def main():
 
     filenames = sys.argv[1:]
 
-    LOG.info("upload_handler enter")
-
     try:
+
+        # Write summary file
+        sf_path = write_summary_file(filenames[0], filenames[1])
+
+        # Write noise file
+        nf_path = write_noise_file()
+    
         # Archive the files
-        archive_path = archive(*filenames)
+        archive_path = archive(filenames[0], sf_path, nf_path)
+
         # Encrypt the archive
-        ea_path = encrypt_file(archive_path, TEMPORARY_DIR, PUBLIC_KEY_ID)
-        # upload to S3
-        upload_to_s3(ea_path, AWS_BUCKET)
-        # shred everything
+        ea_path = encrypt(archive_path)
+
+        # Upload to S3
+        upload_to_s3(ea_path)
+
+        # Shred everything
         for fn in filenames:
             shred(fn)
+        shred(sf_path)
+        shred(nf_path)
         shred(archive_path)
         shred(ea_path)
+
     except Exception, err:
         LOG.error(err)
-
-    LOG.info("upload_handler exit")
 
 if __name__ == "__main__": main()
