@@ -27,6 +27,7 @@ ALLOWED_EXTENSIONS = set([
     'txt', 'pdf',
     'doc', 'xls', 'ppt',
     'docx', 'xlsx', 'pptx',
+    'zip', 'tar', 'gz', 'rar',
 ])
 
 MAX_FILESIZE = (1024**2)*200 # max file size is 200mb
