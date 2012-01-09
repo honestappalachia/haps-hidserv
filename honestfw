@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# TODO: reject --reject-with icmp-port-unreachable ?
+
 # Firewall rules for Honest Appalachia Hidden Service
 
 # Transparent Tor Proxy
