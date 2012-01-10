@@ -10,8 +10,8 @@ Listen 127.0.0.1:5222
     SuexecUserGroup honest honest
 </VirtualHost>
 
-ScriptAlias /cgi-bin/ /home/hiddenservice/htdocs/cgi-bin/
-<Directory "/home/hiddenservice/htdocs/cgi-bin/">
+ScriptAlias /cgi-bin/ /home/honest/htdocs/cgi-bin/
+<Directory "/home/honest/htdocs/cgi-bin/">
     AllowOverride None
     Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
     Order allow,deny
