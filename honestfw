@@ -2,6 +2,8 @@
 
 # TODO: reject --reject-with icmp-port-unreachable ?
 
+start ()
+{
 # Firewall rules for Honest Appalachia Hidden Service
 
 # Drop packets unless explicitly allowed
@@ -102,3 +104,32 @@ ip6tables -A OUTPUT -o lo -j ACCEPT
 # Everything else is dropped.
 ip6tables -A INPUT  -j DROP
 ip6tables -A OUTPUT -j REJECT --reject-with icmp6-port-unreachable
+}
+
+stop () {
+echo "Stopping firewall and allowing everyone..."
+iptables -F
+iptables -X
+iptables -t nat -F
+iptables -t nat -X
+iptables -t mangle -F
+iptables -t mangle -X
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+}
+
+case "$1" in
+  start)
+    echo "Bringing up Honest Appalachia firewall"
+    start
+    ;;
+  stop)
+    echo "Tearing down Honest Appalachia firewall"
+    stop
+    ;;
+  *)
+  echo "Usage: /etc/init.d/honestfw {start|stop}"
+  exit 1
+  ;;
+esac
