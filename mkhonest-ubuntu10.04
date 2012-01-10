@@ -6,6 +6,9 @@
 # hiddenservice.onion -- Apache virtualhost config
 # htdocs/ -- upload site document root
 # honestfw -- iptables rules (as shell script)
+# beanstalkd -- beanstalkd config, /etc/default/beanstalkd
+# stopfw.sh -- clears firewall rules and allows everything (for firewall dev)
+# suexec_www-data -- suexec config, should be in /etc/apache2/suexec/www-data
 
 # Exit immediately if a simple command exits with a non-zero
 # status, unless the command that fails is part of an until or
