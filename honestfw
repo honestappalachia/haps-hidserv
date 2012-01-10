@@ -4,6 +4,11 @@
 
 # Firewall rules for Honest Appalachia Hidden Service
 
+# Drop packets unless explicitly allowed
+iptables -P INPUT DROP
+iptables -P FORWARD DROP
+iptables -P OUTPUT DROP
+
 # Transparent Tor Proxy
 # This set of iptables rules transparently routes all outgoing traffic from
 # this machine through Tor.
@@ -65,22 +70,17 @@ done
 # allow Tor to connect out
 iptables -A OUTPUT -m owner --uid-owner $TOR_UNAME -j ACCEPT
 
-# reject all other outgoing connections
-iptables -A OUTPUT -j REJECT
-
 # General Firewall rules
-
-# Drop packets unless explicitly allowed
-iptables -P INPUT DROP
-iptables -P FORWARD DROP
-# iptables -P OUTPUT ACCEPT
 
 # loopback interface
 iptables -I INPUT -i lo -j ACCEPT
 
 # SSH, Web server, Tor
 # Might not need the Tor ports given the previous rules
-iptables -A INPUT -p tcp -m multiport --destination-ports 22,80,9001,9030,9050
+iptables -A INPUT -p tcp -m multiport --destination-ports 80,9001,9030,9050
+
+iptables -A INPUT -p tcp --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
 # allow established connections on INPUT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
