@@ -44,6 +44,9 @@ chmod -R +rX /home/honest
 # Make sure we're up to date
 apt-get update && apt-get upgrade --assume-yes
 
+# Useful packages that Debian doesn't include
+apt-get install vim unzip
+
 # Install Tor
 # https://www.torproject.org/docs/debian#ubuntu
 DISTRIBUTION=$(lsb_release -c | awk '{ print $2 }')
