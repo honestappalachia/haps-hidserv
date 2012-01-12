@@ -30,7 +30,7 @@ import logwrapper as LOG
 PUBLIC_KEY_ID = '' # public key to encrypt files, must be in gpg keyring
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
-AWS_BUCKET = 'haps-dev'
+AWS_BUCKET = 'upload-dev'
 TEMPORARY_DIR = "/tmp"
 MAX_NOISE_BYTES = 5 * (1024**2)
 try:
@@ -39,6 +39,7 @@ except ImportError:
     pass
 
 # Make sure we have write access to TEMPORARY_DIR
+# This is bad - drops files. At least not silently.
 try:
     testfn = os.path.join(TEMPORARY_DIR, "tempdirtest")
     f = open(testfn, "w")
@@ -100,8 +101,7 @@ def archive(*paths):
     Returns the path to the archive file
     """
     # Name based on the SHA256 sum of the first file
-    sha = sha256(paths[0])
-    archive_name = sha[:16] + ".zip"
+    archive_name = sha256(paths[0])[:16] + ".zip"
     archive_path = os.path.join(TEMPORARY_DIR, archive_name)
 
     zf = zipfile.ZipFile(archive_path, mode='w')
@@ -160,9 +160,9 @@ def encrypt(source_file,
     except IOError as e:
         LOG.error(e)
 
-    # Hack - unfortunately, when GPG encrypts a file, it prints an error
-    # message to the console but does not provide a specific error that
-    # python-gnupg can use. So we need to double check.
+    # Hack - unfortunately, when GPG fails to encrypt a file, it prints an
+    # error message to the console but does not provide a specific error 
+    # that python-gnupg can use. So we need to double check.
     assert os.path.exists(ef_path), \
         "GPG encryption failed -- check the public key."
 

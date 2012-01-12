@@ -28,7 +28,7 @@ import logwrapper as LOG
 PUBLIC_KEY_ID = '' # public key to encrypt files, must be in GPG keyring
 AWS_ACCESS_KEY = ''
 AWS_SECRET_KEY = ''
-AWS_BUCKET = 'haps-dev'
+AWS_BUCKET = 'upload-dev'
 TEMPORARY_DIR = "/tmp"
 MAX_NOISE_BYTES = 5 * (1024**2)
 try:
@@ -81,6 +81,8 @@ def write_noise_file():
     to obfuscate file size correlation
     """
     noise_path = os.path.join(TEMPORARY_DIR, "NOISE")
+    # qworker runs as a daemon, and python's random automatically seeds
+    # the PRNG at import. Should we reseed here?
     num_bytes = random.randint(1, MAX_NOISE_BYTES)
     with open(noise_path, 'w') as f:
         for byte in xrange(num_bytes):
@@ -92,7 +94,8 @@ def archive(*paths):
     *paths is an arbitrary number of absolute paths to files
     Returns the path to the archive file
     """
-    archive_name = datetime.now().strftime("%Y-%m-%dT%H%M%S") + ".zip"
+    # Name based on the SHA256 sum of the first file
+    archive_name = sha256(paths[0])[:16] + ".zip"
     archive_path = os.path.join(TEMPORARY_DIR, archive_name)
 
     zf = zipfile.ZipFile(archive_path, mode='w')
@@ -247,10 +250,9 @@ def main():
     finally:
         beanstalk.close()
 
+# Daemonize
 # Need to check if beanstalkd is running?
-
 # good location for this: /usr/local/sbin
-
 import daemon
 with daemon.DaemonContext(
         files_preserve=[LOG.fh.stream, LOG.fh2.stream],
