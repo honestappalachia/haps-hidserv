@@ -16,7 +16,7 @@ import os
 import sys
 import cgi
 # Enable cgitb for debugging. Do not use in production.
-import cgitb; cgitb.enable()
+# import cgitb; cgitb.enable()
 import re
 import subprocess
 import hashlib
