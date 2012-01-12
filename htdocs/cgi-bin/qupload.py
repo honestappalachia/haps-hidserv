@@ -39,6 +39,8 @@ UPLOAD_DIR = "/tmp"
 MESSAGE = ""
 INFO = {}
 
+_filename_ascii_strip_re = re.compile(r'[^A-Za-z0-9_.-]')
+
 def allowed_file(filename):
     '''
     Check if file type of filename is allowed based on extension
@@ -80,15 +82,20 @@ def secure_filename(filename):
     Given a filename, returns a secure version of it that is safe to
     pass to os.path.join on the server
 
-    Thanks to Werkzeug Project for the Unicode escaping code
+    Thanks to Werkzeug Project
     https://github.com/mitsuhiko/werkzeug/
     '''
-    # TODO: Use dangerous character strip code as well
     if isinstance(filename, unicode):
         from unicodedata import normalize
         filename = normalize('NFKD', filename).encode('ascii', 'ignore')
 
-    return '_'.join(os.path.basename(filename).split())
+    for sep in os.path.sep, os.path.altsep:
+        if sep:
+            filename = filename.replace(sep, ' ')
+    filename = str(_filename_ascii_strip_re.sub('', '_'.join(
+                   filename.split()))).strip('._')
+
+    return filename
 
 def dict_as_ul(d):
     """
