@@ -82,7 +82,8 @@ def write_noise_file():
     """
     noise_path = os.path.join(TEMPORARY_DIR, "NOISE")
     # qworker runs as a daemon, and python's random automatically seeds
-    # the PRNG at import. Should we reseed here?
+    # the PRNG at module import. Should we reseed here?
+    # random.seed(), or use random.SystemRandom()
     num_bytes = random.randint(1, MAX_NOISE_BYTES)
     with open(noise_path, 'w') as f:
         for byte in xrange(num_bytes):
