@@ -47,8 +47,7 @@ def allowed_file(filename):
     '''
     Check if file type of filename is allowed based on extension
     '''
-    ext = filename.rsplit('.', 1)[1]
-    INFO['filetype'] = ext
+    INFO['filetype'] = ext = filename.rsplit('.', 1)[1]
     return '.' in filename and ext in ALLOWED_EXTENSIONS
 
 def allowed_size(f):
@@ -58,15 +57,11 @@ def allowed_size(f):
     # for tip on getting filesize from cStringIO
     # http://trac.edgewall.org/ticket/4311
     f.seek(0, os.SEEK_END) # http://docs.python.org/library/stdtypes.html#file.seek
-    fsize = f.tell()
+    INFO['size'] = fsize = f.tell()
     f.seek(0)
-
-    INFO['size'] = fsize
 
     if fsize <= MAX_FILESIZE:
         return True
-    else:
-        return False
     
 def span(text, c):
     ''' Wrap text in a span with class=c '''
