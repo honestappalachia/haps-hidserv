@@ -26,11 +26,13 @@ import beanstalkc
 
 import logwrapper as LOG
 
-# TODO: Complete list of useful filetypes to upload
 ALLOWED_EXTENSIONS = set([
-    'txt', 'pdf',
-    'doc', 'xls', 'ppt',
-    'docx', 'xlsx', 'pptx',
+    'txt', 'rtf',
+    'pdf',
+    'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+    'odf', 'odt', 'ods', 'odp',
+    'csv',
+    'zip', 'tar', 'bz2', '7zip', 'rar', 'gz',
 ])
 
 MAX_FILESIZE = (1024**2)*200 # max file size is 200mb
