@@ -45,7 +45,7 @@ try:
     os.remove(testfn)
 except Exception, e:
     LOG.critical(
-        "Failed performing file operations in TEMPORARY_DIR %s: %s"
+        "Failed performing file operations in TEMPORARY_DIR '%s': %s"
          % (TEMPORARY_DIR, e)
     )
     sys.exit(1)
