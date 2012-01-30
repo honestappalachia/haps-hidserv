@@ -113,8 +113,10 @@ file_field_name = "file"
 if file_field_name in form and form[file_field_name].filename:
     file_field = form[file_field_name]
 
-    # Check if file is allowed to be uploaded
-    if allowed_file(file_field.filename) and allowed_size(file_field.file):
+    # Check if file may be uploaded
+    if (file_field.done != -1 and # http://docs.python.org/library/cgi.html
+        allowed_file(file_field.filename) and
+        allowed_size(file_field.file)):
         try:
             # Save uploaded file
             filename = secure_filename(file_field.filename)
@@ -123,8 +125,6 @@ if file_field_name in form and form[file_field_name].filename:
             f = open(upload_path, 'wb')
             for chunk in fbuffer(file_field.file):
                 f.write(chunk)
-            # Set permissions on upload_path for uploadworker
-            # Idea: create a group with the Apache user and the uploadworker user
             f.close()
 
             # Get comment, or say there wasn't one
