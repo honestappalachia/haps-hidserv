@@ -47,6 +47,13 @@ apt-get update && apt-get upgrade --assume-yes
 # Useful packages that Debian doesn't include
 apt-get install vim unzip
 
+# Install haveged software RNG (only if using a VPS, query user?)
+echo "
+deb http://backports.debian.org/debian-backports squeeze-backports main
+" > /etc/apt/sources.list.d/squeeze-backports.list
+apt-get update
+apt-get -t squeeze-backports install haveged
+
 # Install Tor
 # https://www.torproject.org/docs/debian#ubuntu
 DISTRIBUTION=$(lsb_release -c | awk '{ print $2 }')
