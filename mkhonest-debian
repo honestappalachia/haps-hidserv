@@ -87,7 +87,6 @@ echo "" > /etc/apache2/ports.conf
 cp hiddenservice.onion /etc/apache2/sites-available/
 a2ensite hiddenservice.onion
 # Restart Apache to enable everything
-# Need to create users first!
 /etc/init.d/apache2 restart
 
 # Install beanstalkd
