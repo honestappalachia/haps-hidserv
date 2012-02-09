@@ -56,8 +56,8 @@ Now edit `~/.ssh/config`. Add the following:
     Host *.onion
     ProxyCommand connect -R remote -5 -S 127.0.0.1:9050 %h %p
 
-Now ssh yourhiddenservice.onion should work. The connection will be veeeeery slow since you are going through different layers of encryption and indirection. You should also check the hostid of your server before connecting and dropping in a pub-key as you should never trust your friendly TOR providers (US govt, Chinese gvt, Iranian govt, etc ...).
+Now ssh user@yourhiddenservice.onion should work. The connection will be veeeeery slow since you are going through different layers of encryption and indirection. You should also check the hostid of your server before connecting and dropping in a pub-key as you should never trust your friendly TOR providers (US govt, Chinese gvt, Iranian govt, etc ...).
 
-How slow? Too slow? Reliable? Once this is set up, it will be the only way in.
+Once this is set up it will be the only way. Tried it, it works but is quite slow. Use screen!
 
 Thanks to: http://mancoosi.org/~abate/hidden-ssh-service-tor
