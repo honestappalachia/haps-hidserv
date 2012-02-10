@@ -36,6 +36,7 @@ passwd honest
 
 # Set up honest home directory
 cp -r htdocs/ /home/honest/
+cp qworker settings.py logwrapper.py /home/honest/
 chown -R honest:honest /home/honest/
 chmod -R +rX /home/honest
 
@@ -129,10 +130,25 @@ echo "nameserver 127.0.0.1" > /etc/resolv.conf
 # TODO: Will this run on subsequent boots? Should I run update-rc.d honestfw defaults
 cp honestfw /etc/init.d/honestfw
 chmod a+x /etc/init.d/honestfw
-/etc/init.d/honestfw
+/etc/init.d/honestfw start
+
+# Set up qworker daemon
+cp qworkerd /etc/init.d/qworkerd
+chmod a+x /etc/init.d/qworkerd
+/etc/init.d/qworkerd start
+
+# SSH Tor Hidden Service
+# Will this kill the current SSH session? Would be bad, since we need to know the hostname to connect again. Need to test with firewall.
+#echo "
+#### SSH HIDDEN SERVICE ###
+#HiddenServiceDir /var/lib/tor/ssh_hidden_service/
+#HiddenServicePort 22 127.0.0.1:22
+#" >> /etc/tor/torrc
+#/etc/init.d/tor restart
 
 # Output results here:
+#SSH_HS_HOSTNAME = $(cat /var/lib/tor/ssh_hidden_service/hostname)
+#echo "The .onion address of the SSH hidden service is $SSH_HS_HOSTNAME"
 HS_HOSTNAME = $(cat /var/lib/tor/hidden_service/hostname)
 echo "The .onion address of the upload hidden service is $HS_HOSTNAME"
-# Talk about how to copy public key, create keypair and sign, and 
-# futher lock down security
+echo "Don't forget to set up your GPG keys and configure /home/honest/settings.py!"
