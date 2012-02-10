@@ -1,0 +1,64 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          qworker
+# Required-Start:    $local_fs $remote_fs $network $named $time
+# Required-Stop:     $local_fs $remote_fs $network $named $time
+# Should-Start:      $named
+# Should-Stop:       
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: queue worker for uploaded files 
+# Description:       Starts the Honest Appalachia queue file worker,
+#                    which processes jobs posted to a local beanstalkd
+#                    queue.
+### END INIT INFO
+
+DAEMON=/home/honest/qworker
+NAME=qworker
+PIDFILE=/var/run/$NAME.pid
+LOGDIR=/var/log/$NAME
+DAEMONUSER=honest
+DAEMONGROUP=honest
+ARGS=""
+
+test -x $DAEMON || exit 0
+
+# Check that the user exists (if we set a user)
+# Does the user exist?
+if [ -n "$DAEMONUSER" ] ; then
+    if getent passwd | grep -q "^$DAEMONUSER:"; then
+        # Obtain the uid and gid
+        DAEMONUID=`getent passwd |grep "^$DAEMONUSER:" | awk -F : '{print $3}'`
+        DAEMONGID=`getent passwd |grep "^$DAEMONUSER:" | awk -F : '{print $4}'`
+    else
+        log_failure_msg "The user $DAEMONUSER, required to run $NAME does not exist."
+        exit 0
+    fi
+fi
+
+. /lib/lsb/init-functions
+
+set -e
+
+case "$1" in
+  start)
+    echo "Starting $NAME"
+    start-stop-daemon --start --pidfile $PIDFILE \
+        --user $DAEMONUSER --group $DAEMONGROUP \
+        -b --make-pidfile \
+        --chuid $DAEMONUSER \
+        --exec $DAEMON $ARGS
+    ;;
+  stop)
+    echo "Stopping $NAME"
+    /sbin/start-stop-daemon --stop --pidfile $PIDFILE --verbose
+    ;;
+  *)
+    echo "Usage: /etc/init.d/qworkerd {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
+
