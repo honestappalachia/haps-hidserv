@@ -36,7 +36,14 @@ passwd honest
 
 # Set up honest home directory
 cp -r htdocs/ /home/honest/
-cp qworker settings.py logwrapper.py /home/honest/
+cp qworker logwrapper.py /home/honest/
+
+echo "
+PUBLIC_KEY_ID = ''
+AWS_ACCESS_KEY = ''
+AWS_SECRET_KEY = ''
+" > /home/honest/settings.py
+
 chown -R honest:honest /home/honest/
 chmod -R +rX /home/honest
 
