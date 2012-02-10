@@ -135,6 +135,7 @@ chmod a+x /etc/init.d/honestfw
 # Set up qworker daemon
 cp qworkerd /etc/init.d/qworkerd
 chmod a+x /etc/init.d/qworkerd
+update-rc.d qworkerd defaults
 /etc/init.d/qworkerd start
 
 # SSH Tor Hidden Service
