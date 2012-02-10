@@ -53,14 +53,14 @@ chmod -R +rX /home/honest
 apt-get update && apt-get upgrade --assume-yes
 
 # Useful packages that Debian doesn't include
-apt-get install vim unzip
+apt-get -y install vim unzip
 
 # Install haveged software RNG (only if using a VPS, query user?)
 echo "
 deb http://backports.debian.org/debian-backports squeeze-backports main
 " > /etc/apt/sources.list.d/squeeze-backports.list
 apt-get update
-apt-get -t squeeze-backports install haveged
+apt-get -t -y squeeze-backports install haveged
 
 # Install Tor
 # https://www.torproject.org/docs/debian#ubuntu
@@ -72,7 +72,7 @@ deb http://deb.torproject.org/torproject.org $DISTRIBUTION main
 gpg --keyserver keys.gnupg.net --recv 886DDD89
 gpg --export A3C4F0F979CAA22CDBA8F512EE8CBC9E886DDD89 | apt-key add -
 apt-get update
-apt-get install tor tor-geoipdb
+apt-get -y install tor tor-geoipdb
 
 # Set up Tor Hidden service
 echo "
@@ -84,12 +84,11 @@ HiddenServicePort 80 127.0.0.1:5222
 
 # Install Apache
 # http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
-apt-get install apache2 apache2-doc apache2-utils
-apt-get install libapache2-mod-python
+apt-get -y install apache2 apache2-doc apache2-utils libapache2-mod-python
 # suexec support
 # apt-get install apache2-suexec
 # apache2-suexec-custom allows configuration through a file, not compiled in
-apt-get install apache2-suexec-custom
+apt-get -y install apache2-suexec-custom
 a2enmod suexec
 # Copy suexec config
 cp suexec_www-data /etc/apache2/suexec/www-data
@@ -105,7 +104,7 @@ a2ensite hiddenservice.onion
 /etc/init.d/apache2 restart
 
 # Install beanstalkd
-apt-get install beanstalkd
+apt-get -y install beanstalkd
 # Copy config to /etc/default/beanstalkd
 cp /etc/default/beanstalkd /etc/default/beanstalkd.original
 cp beanstalkd /etc/default/beanstalkd
@@ -113,7 +112,7 @@ cp beanstalkd /etc/default/beanstalkd
 /etc/init.d/beanstalkd restart
 
 # Set up upload site
-apt-get install python-setuptools
+apt-get -y install python-setuptools
 easy_install pip
 # Install Python dependencies
 pip install beanstalkc python-gnupg boto python-daemon
