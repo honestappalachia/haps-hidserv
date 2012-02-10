@@ -60,7 +60,7 @@ echo "
 deb http://backports.debian.org/debian-backports squeeze-backports main
 " > /etc/apt/sources.list.d/squeeze-backports.list
 apt-get update
-apt-get -t -y squeeze-backports install haveged
+apt-get -y -t squeeze-backports install haveged
 
 # Install Tor
 # https://www.torproject.org/docs/debian#ubuntu
