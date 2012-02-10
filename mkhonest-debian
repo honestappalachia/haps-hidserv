@@ -156,6 +156,6 @@ update-rc.d qworkerd defaults
 # Output results here:
 #SSH_HS_HOSTNAME = $(cat /var/lib/tor/ssh_hidden_service/hostname)
 #echo "The .onion address of the SSH hidden service is $SSH_HS_HOSTNAME"
-HS_HOSTNAME = $(cat /var/lib/tor/hidden_service/hostname)
+HS_HOSTNAME=$(cat /var/lib/tor/hidden_service/hostname)
 echo "The .onion address of the upload hidden service is $HS_HOSTNAME"
 echo "Don't forget to set up your GPG keys and configure /home/honest/settings.py!"
