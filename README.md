@@ -7,25 +7,43 @@ Developed for Ubuntu 10.04/Debian Squeeze, but should work (with minor modificat
 What is here?
 -------------
 
-1.  hiddenservice.onion
+1.  mkhonest-debian
+
+    Install script that sets up everything but crypto keys
+
+2.  hiddenservice.onion
 
     Apache virtualhost configuration file for hidden service
 
-2.  htdocs/index.html
+3.  htdocs/index.html
 
     Simple upload form. The upload is handled by the upload.py CGI script.
 
-3.  htdocs/cgi-bin/upload.py
+4.  htdocs/cgi-bin/qupload.py
 
-    CGI script that handles file uploads.
+    CGI script for handling submitted upload forms; puts jobs on beanstalkd queue
 
-4.  htdocs/cgi-bin/upload_handler.py
+5.  qworker
 
-    Process file uploads.
+    Listens (non-blocking) on beanstalkd queue and processes uploads. 
 
-5.  htdocs/cgi-bin/mylogging.py
+6.  logwrapper.py
 
     Wrapper for logging
+
+7.  beanstalkd
+
+    Configuration for /etc/default/beanstalkd
+
+8.  honestfw
+
+    Sets up highly restrictive firewall for a machine running only the hidden
+    service. stop can be used to reset the firewall to (completely open) defaults
+    for troubleshooting.
+
+9.  suexec_www-data
+
+    Configuration for Apache suexec module for running the cgi (and using gpg)
 
 Setup The Easy Way
 ==================
