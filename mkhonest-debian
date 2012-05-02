@@ -62,7 +62,7 @@ deb http://backports.debian.org/debian-backports squeeze-backports main
 apt-get update
 apt-get -y -t squeeze-backports install haveged
 
-# Install Tor
+# Install Tor - installs latest stable Tor version for Debian and Ubuntu
 # https://www.torproject.org/docs/debian#ubuntu
 DISTRIBUTION=$(lsb_release -c | awk '{ print $2 }')
 echo "
@@ -146,16 +146,16 @@ update-rc.d qworkerd defaults
 
 # SSH Tor Hidden Service
 # Will this kill the current SSH session? Would be bad, since we need to know the hostname to connect again. Need to test with firewall.
-#echo "
-#### SSH HIDDEN SERVICE ###
-#HiddenServiceDir /var/lib/tor/ssh_hidden_service/
-#HiddenServicePort 22 127.0.0.1:22
-#" >> /etc/tor/torrc
-#/etc/init.d/tor restart
+echo "
+### SSH HIDDEN SERVICE ###
+HiddenServiceDir /var/lib/tor/ssh_hidden_service/
+HiddenServicePort 22 127.0.0.1:22
+" >> /etc/tor/torrc
+/etc/init.d/tor restart
 
 # Output results here:
-#SSH_HS_HOSTNAME = $(cat /var/lib/tor/ssh_hidden_service/hostname)
-#echo "The .onion address of the SSH hidden service is $SSH_HS_HOSTNAME"
+SSH_HS_HOSTNAME=$(cat /var/lib/tor/ssh_hidden_service/hostname)
+echo "The .onion address of the SSH hidden service is $SSH_HS_HOSTNAME"
 HS_HOSTNAME=$(cat /var/lib/tor/hidden_service/hostname)
 echo "The .onion address of the upload hidden service is $HS_HOSTNAME"
 echo "Don't forget to set up your GPG keys and configure /home/honest/settings.py!"
