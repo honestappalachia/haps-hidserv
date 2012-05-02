@@ -48,13 +48,13 @@ What is here?
 Setup The Easy Way
 ==================
 
-Run mkhonest-debian (or mkhoenst-ubuntu10.04) as root. You will be prompted to make a password for the user that process uploads.
+Run mkhonest-debian as root. You will be asked to provide a password for the user that processes uploads.
 
 After the script is finished running, you need to set up your cryptographic keys.
 
-You need to generate two GPG keys. We will call them the client key and the server key. The client key is the key used to encrypt the files received by the hidden service. The server key only exists to sign the client public key. This is not really necessary but works the way GPG was intended to; it complains (and python-gnupg fails silently) if you try to encrypt a file with an untrusted public key.
+You need to generate two GPG keys - the client key and the server key. The client key is the key used to encrypt the files received by the hidden service. The server key only exists to sign the client public key. This is not really necessary but works the way GPG was intended to; it complains (and python-gnupg fails silently) if you try to encrypt a file with an untrusted public key.
 
-You should have a computer that you intend to use to decrypt files. Ideally this would be a physical machine in a secured location that you can use to download files, then air gap for decryption and processing. You can also use a laptop or a virtual machine - just recognize the importance of this machine and secure it accordingly.
+You should have a computer that you intend to use to decrypt files. Ideally this would be a physical machine in a secured location that you can use to download files, then air gap for decryption and processing. You can also use a laptop or a virtual machine - just recognize the significance of this machine and secure it accordingly.
 
 On this machine, generate a new GPG key.
 
@@ -71,7 +71,7 @@ We also recommend backing up the key, including the private key, to a secure and
     $ gpg --export-secret-keys --armor mykey > privatekey.asc
     $ gpg --export --armor mykey > publickey.asc
 
-This is so you wont get locked out of your system in case of some catastrophic failure.
+This is so you wont get locked out of your system in case of some catastrophic failure. Note that your private key is only as secure as the least secure medium it is transmitted over - we advise against sending it over any network.
 
 Now you will need to generate the server key on your server. Log in to the server as the user who will be encrypting files (this is important - each user has their own GPG keyring) and `gpg --gen-key`. Same recommendations as before. Note that generating crypto keys on headless servers or VPS can be very difficult; there isnt much entropy to work with. Our install script installs the [haveged daemon] to mitigate this issue. 
 
@@ -89,7 +89,7 @@ To be super-safe, check the fingerprint against the fingerprint on the client ma
 
     $ gpg --fingerpint mykey
 
-Back to the server. Once youve verified the fingerprints, go ahead and sign the client public key on the server:
+Back to the server. Once you've verified the fingerprints, go ahead and sign the client public key on the server:
 
     > sign
 
@@ -110,28 +110,6 @@ Finally you need to set up an Amazon AWS account. Once files are encrypted, they
 
 These 3 settings are the minimum required for a working hidden service. 
 
-Setup The Hard Way
-==================
-
-**Warning: Out of date**
-
-You will need to run these commands as root or use sudo.
-
-1.  [Install Tor]
-2.  [Install Apache]
-    `apt-get install apache2 apache2-doc apache2-utils`
-    `apt-get install libapache2-mod-python`
-3.  [Set Up a Hidden Service]
-4.  Clone this repo
-5.  [Install gnupg]
-    `apt-get install gnupg`
-6.  [Install beanstalkd]
-    `apt-get install beanstalkd`
-6.  Install Python dependencies. We recommend using pip. To install pip
-    1.	`apt-get install python-setuptools`
-    2.	`easy_install pip`
-    3.	Now, to install <packagename>: `pip install <packagename>`
-
 Python dependencies
 -------------------
 
@@ -144,13 +122,7 @@ Python dependencies
 4.  [python-daemon]
     Daemonizes python scripts
 
-[install tor]: https://www.torproject.org/docs/tor-doc-unix.html.en
-[Install Apache]: http://library.linode.com/web-servers/apache/installation/ubuntu-10.04-lucid
-[set up a hidden service]: https://www.torproject.org/docs/tor-hidden-service.html.en
-[python-magic]: https://github.com/ahupp/python-magic
-[Install beanstalkd]: http://kr.github.com/beanstalkd/
 [beanstalkc]: https://github.com/earl/beanstalkc
-[Install gnupg]: http://www.gnupg.org/
 [python-gnupg]: http://code.google.com/p/python-gnupg/
 [boto]: http://code.google.com/p/boto/
 [python-daemon]: http://pypi.python.org/pypi/python-daemon
