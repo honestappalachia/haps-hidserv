@@ -2,7 +2,7 @@ haps-hidserv
 ============
 
 A Tor hidden service for anonymous file upload, using Apache and Python.
-Developed for Ubuntu 10.04/Debian Squeeze, but should work (with minor modifications) on any Linux.
+Developed for Debian Squeeze, but should work (with modifications) on any Linux.
 
 What is here?
 -------------
